@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Match vscode background */
+  background-color: #1e1e1e;
+  @apply text-gray-100;
+}
+
+@layer base {
+  *:focus,
+  *:active {
+    @apply outline-none !important;
+  }
+
+  /* default styling for browser-handled focus */
+  *:focus-visible {
+    @apply ring-4;
+    @apply ring-focused;
+  }
+}
+
+@layer utilities {
+}
