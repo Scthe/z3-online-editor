@@ -4,7 +4,6 @@ import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
 import { ContextCtor } from 'z3-solver/build/browser';
 import { evaluateUserZ3Script, Z3_Wrapper } from './z3/z3-api';
 import { injectZ3IntoMonacoEditor } from './z3/z3-monaco';
-import classNames from 'classnames';
 
 interface Props {
   z3: Z3_Wrapper;
@@ -17,9 +16,8 @@ export const App = ({ z3 }: Props) => {
   // }, [file.name]);
 
   const file = {
-    name: 'main.mts',
+    name: 'main.mts', // '*.mts' only to allow for global async
     language: 'typescript',
-    // value: '// Hello World!\nconst a = window.',
     value: `const x = ctx.Int.const('x');
 const y = ctx.Real.val("my-real");
 
@@ -27,27 +25,6 @@ const solver = new ctx.Solver();
 solver.add(ctx.And(x.ge(0), x.le(9)));
 const result = await solver.check();
 console.log(result);
-//log(result)
-
-/*
-ctx;
-const a0 = myLib("aaaa");
-const a2 = myLib2();
-const a3 = myLib3();
-const a4 = myLib4("aaaa");
-
-const b1: CoercibleRational =  {};
-const b2 =  rat;
-
-c1
-c2
-c3
-
-
-import * as x from "z3"
-declare const c99: x.CoercibleRational;
-c99.*/
-
 `,
   };
 
