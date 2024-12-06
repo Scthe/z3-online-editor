@@ -7,6 +7,8 @@ module.exports = {
         return {
           accent: colors.sky,
           focused: colors.pink[500],
+          vscodebg: '#1e1e1e',
+          toolbar: 'rgb(57, 59, 62)',
         };
       },
     },
@@ -21,3 +23,4 @@ module.exports = {
   ],
   plugins: [],
 };
+

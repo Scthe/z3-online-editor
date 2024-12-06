@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 import { isProductionBuild } from './utils';
 import { App } from './app';
 import { initZ3 } from './z3/z3-api';
+import { FILES } from './vfs';
 // import { injectZ3IntoMonacoEditor } from './z3/z3-monaco';
 
 /*
@@ -27,6 +28,8 @@ async function main() {
   }
 
   // injectZ3IntoMonacoEditor();
+
+  console.log('FILES', FILES);
 
   const root = ReactDOM.createRoot(document.getElementById('root')!);
   root.render(

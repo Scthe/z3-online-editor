@@ -1,12 +1,18 @@
 import { Context, init, Z3HighLevel } from 'z3-solver/build/browser';
+import { getPluckedContextKeys } from './z3-ctxPluck';
+import { downloadTypingsZ3, ExtraTypingFiles } from './z3-monaco';
+
+export type IContextZ3 = Context<'main'>;
 
 interface MyContextCtor {
-  new (name: string, options?: Record<string, unknown>): Context<'main'>;
+  new (name: string, options?: Record<string, unknown>): IContextZ3;
 }
 
 export interface Z3_Wrapper {
   z3: Z3HighLevel;
   ContextCtor: MyContextCtor;
+  globallyAccessibleContextKeys: Array<keyof IContextZ3>;
+  extraTypingExternalFiles: ExtraTypingFiles;
 }
 
 type InitReturnType =
@@ -24,41 +30,35 @@ export async function initZ3(): Promise<InitReturnType> {
     const z3 = await init();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ContextCtor: MyContextCtor = z3.Context as any;
-    const ctx: Context = new ContextCtor('main');
-    const { Solver, Int, And } = ctx;
+    const testCtx = await testApiWorks(ContextCtor);
 
-    const x = Int.const('x');
+    const extraTypingExternalFiles = await downloadTypingsZ3();
 
-    const solver = new Solver();
-    solver.add(And(x.ge(0), x.le(9)));
-    const _solution = await solver.check();
-    // console.log(solution);
-
-    return { status: 'ok', z3: { z3, ContextCtor } };
+    return {
+      status: 'ok',
+      z3: {
+        z3,
+        ContextCtor,
+        globallyAccessibleContextKeys: getPluckedContextKeys(testCtx),
+        extraTypingExternalFiles,
+      },
+    };
   } catch (error) {
     console.error(error);
     return { status: 'error', error };
   }
 }
 
-export type z3_Logger = (...args: unknown[]) => void;
+async function testApiWorks(ContextCtor: MyContextCtor) {
+  const ctx = new ContextCtor('z3-init-test');
+  const { Solver, Int, And } = ctx;
 
-export const evaluateUserZ3Script = async (
-  z3: Z3_Wrapper,
-  log: z3_Logger,
-  userScriptText: string
-) => {
-  const scriptFnText = `const f = async (ctx, log) => {
-    // const { Solver, Int, And } = ctx;
-    ${userScriptText}
-    };
-    f`;
+  const x = Int.const('x');
 
-  // https://esbuild.github.io/content-types/#direct-eval
-  const scriptFn = window.eval(scriptFnText);
+  const solver = new Solver();
+  solver.add(And(x.ge(0), x.le(9)));
+  const _solution = await solver.check();
+  // console.log(solution);
 
-  const ctx = new z3.ContextCtor('main');
-  // const solver = new ctx.Solver();
-  scriptFn(ctx, log);
-  // console.log(await solver.check());
-};
+  return ctx;
+}

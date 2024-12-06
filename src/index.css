@@ -2,13 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  /* Match vscode background */
-  background-color: #1e1e1e;
-  @apply text-gray-100;
-}
-
 @layer base {
+  :root {
+    /* Match vscode background */
+    @apply bg-vscodebg;
+    @apply text-gray-100;
+  }
+
   *:focus,
   *:active {
     @apply outline-none !important;

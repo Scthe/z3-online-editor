@@ -1,6 +1,20 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const esbuild = require('esbuild');
 const copyStaticFiles = require('esbuild-copy-static-files');
 const postCssPlugin = require('esbuild-style-plugin');
+const { readFile } = require('fs/promises');
+
+/** Custom plugin that loads '.z3.mts' files using text loader instead of typescript loader. */
+const ImportZ3TypeScriptAsTextPlugin = {
+  name: 'CSSMinifyPlugin',
+  setup(build) {
+    build.onLoad({ filter: /\.z3\.m?ts$/ }, async (args) => {
+      // console.log('.z3.ts file', args);
+      const contents = await readFile(args.path);
+      return { loader: 'text', contents };
+    });
+  },
+};
 
 const config = {
   entryPoints: ['./src/index.tsx'],
@@ -23,6 +37,7 @@ const config = {
         plugins: [require('tailwindcss'), require('autoprefixer')],
       },
     }),
+    ImportZ3TypeScriptAsTextPlugin,
   ],
 };
 

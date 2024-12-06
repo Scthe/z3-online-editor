@@ -1,73 +1,72 @@
-import React, { useCallback, useState, useRef, useEffect } from 'react';
-import Editor from '@monaco-editor/react';
+import React, { useCallback, useRef, useState } from 'react';
 import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
-import { ContextCtor } from 'z3-solver/build/browser';
-import { evaluateUserZ3Script, Z3_Wrapper } from './z3/z3-api';
-import { injectZ3IntoMonacoEditor } from './z3/z3-monaco';
+import { Z3_Wrapper } from './z3/z3-api';
+import { FILES } from './vfs';
+import { evaluateUserZ3Script } from './z3/z3-eval';
+import { CodeRunningState, OutputShowState } from './constants';
+import { OutputPanel } from './components/outputPanel';
+import { CodeEditor } from './components/codeEditor';
+import classNames from 'classnames';
+
+// TODO add support for back button to switch files
+// TODO h1 - app name
+// TODO two-column layout if possible?
+// TODO output panels shows current file name or one that is executing?
 
 interface Props {
   z3: Z3_Wrapper;
 }
 
 export const App = ({ z3 }: Props) => {
+  const file = FILES[0];
+
   const editorRef = useRef<editor.IStandaloneCodeEditor | undefined>(undefined);
+
   // useEffect(() => {
   // editorRef.current?.focus();
   // }, [file.name]);
 
-  const file = {
-    name: 'main.mts', // '*.mts' only to allow for global async
-    language: 'typescript',
-    value: `const x = ctx.Int.const('x');
-const y = ctx.Real.val("my-real");
+  const [outputShowState, setOutputShowState] =
+    useState<OutputShowState>('minimized');
 
-const solver = new ctx.Solver();
-solver.add(ctx.And(x.ge(0), x.le(9)));
-const result = await solver.check();
-console.log(result);
-`,
-  };
+  const [codeExecState, setCodeExecState] = useState<CodeRunningState>('idle');
 
   const execCode = useCallback(async () => {
-    const userScriptText = editorRef?.current?.getValue() || '';
-    const log = (...args: unknown[]) => console.log('[LOG]', ...args);
+    try {
+      setCodeExecState('running');
 
-    await evaluateUserZ3Script(z3, log, userScriptText);
+      // show output if needed
+      setOutputShowState((state) => (state === 'minimized' ? 'shown' : state));
+
+      // get current text
+      const userScriptText = editorRef?.current?.getValue() || '';
+
+      // eval
+      // TODO handle stop code exec
+      const log = (...args: unknown[]) => console.log('[LOG]', ...args);
+      await evaluateUserZ3Script(z3, log, userScriptText);
+    } finally {
+      setCodeExecState('idle');
+    }
   }, [z3]);
 
-  // https://codesandbox.io/p/sandbox/multi-model-editor-kugi6?file=%2Fsrc%2FApp.js
   return (
-    <main className="relative flex flex-col w-full font-mono min-h-svh">
-      {/* TODO put on the terminal bar */}
-      <div className="absolute top-0 right-0 z-10 transition-colors bg-green-500 hover:bg-green-600">
-        <button className="p-2" onClick={execCode}>
-          Run
-        </button>
-      </div>
+    <main
+      className={classNames(
+        'w-full max-w-3xl mx-auto min-h-svh',
+        'relative flex flex-col font-mono '
+      )}
+    >
+      <OutputPanel
+        fileName={file.name}
+        shownState={outputShowState}
+        codeExecState={codeExecState}
+        onCodeExec={execCode}
+        onOutputShowToggle={setOutputShowState}
+        className="w-full max-w-3xl"
+      />
 
-      <div className="flex flex-col w-full max-w-3xl py-2 mx-auto grow">
-        <Editor
-          // height="100svh"
-          height="100%"
-          className=""
-          wrapperProps={{ className: 'grow' }}
-          theme="vs-dark"
-          path={file.name}
-          defaultLanguage={file.language}
-          defaultValue={file.value}
-          onMount={(editor, monaco) => {
-            editorRef.current = editor;
-
-            injectZ3IntoMonacoEditor(monaco);
-          }}
-          options={{
-            // scrollBeyondLastLine: false,
-            minimap: { enabled: false },
-            // https://github.com/microsoft/monaco-editor/issues/1875
-            // scrollbar: { alwaysConsumeMouseWheel: false },
-          }}
-        />
-      </div>
+      <CodeEditor file={file} z3={z3} editorRef={editorRef} />
     </main>
   );
 };
