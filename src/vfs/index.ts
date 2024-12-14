@@ -1,4 +1,4 @@
-import defaultFile from './default-file.z3.mjs';
+import defaultFile from './default-file.z3.mts';
 
 export type VfsFile = ReturnType<typeof createFile>;
 

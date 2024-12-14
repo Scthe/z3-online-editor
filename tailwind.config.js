@@ -8,6 +8,7 @@ module.exports = {
           accent: colors.sky,
           focused: colors.pink[500],
           vscodebg: '#1e1e1e',
+          panelSpacing: 'black',
           toolbar: 'rgb(57, 59, 62)',
         };
       },

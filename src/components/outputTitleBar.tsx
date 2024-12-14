@@ -1,39 +1,40 @@
 import classNames from 'classnames';
-import React from 'react';
-import { CodeRunningState, OutputShowState } from '../constants';
-import {
-  MinimalizeIcon,
-  MirrorIcon,
-  MaximizeIcon,
-  CancelIcon,
-  PlayIcon,
-} from './icons';
+import React, { PropsWithChildren } from 'react';
+import { CodeExecState, useCodeExecStateStore } from '../state/codeExec';
+import { WithClassName } from '../utils';
 
-export type OnCodeExec = () => void;
-export type OnOutputShowToggle = (t: OutputShowState) => void;
+interface Props {}
 
-interface Props {
-  fileName: string;
-  shownState: OutputShowState;
-  codeExecState: CodeRunningState;
-  onCodeExec: OnCodeExec;
-  onOutputShowToggle: OnOutputShowToggle;
-}
-
-export function TitleBar(p: Props) {
+export function TitleBar(p: PropsWithChildren & WithClassName) {
   return (
     <div
       className={classNames(
+        p.className,
         'flex items-center justify-between gap-2 px-2 py-1 bg-toolbar'
       )}
     >
-      <div className="">
-        <RunCodeBtn codeExecState={p.codeExecState} onCodeExec={p.onCodeExec} />
-      </div>
+      {p.children}
+    </div>
+  );
+}
 
-      <h2 className="truncate">{p.fileName}</h2>
+export function OutputTitleBar(p: Props) {
+  const execState = useCodeExecStateStore((s) => s as CodeExecState);
+
+  let text = 'Output';
+  if (execState.lastFilename) {
+    const stateText = execState.status === 'running' ? ' (running)' : '';
+    text = `${text}: ${execState.lastFilename} ${stateText}`;
+  }
+
+  return (
+    <TitleBar>
+      <div className=""></div>
+
+      <h2 className="truncate">{text}</h2>
 
       <div className="flex gap-2">
+        {/* 
         <OutputChangeSizeBtn
           activeState={p.shownState}
           setShownState={p.onOutputShowToggle}
@@ -56,44 +57,13 @@ export function TitleBar(p: Props) {
           icon={MaximizeIcon}
           state="fullscreen"
         />
+        */}
       </div>
-    </div>
+    </TitleBar>
   );
 }
 
-function RunCodeBtn(p: {
-  codeExecState: CodeRunningState;
-  onCodeExec: OnCodeExec;
-}) {
-  const runIconSize = '15px';
-  const isRunning = p.codeExecState === 'running';
-
-  return (
-    <button
-      className={classNames(
-        'px-2 text-toolbar transition-colors rounded-md flex gap-1 items-center',
-        isRunning
-          ? 'bg-red-500 hover:bg-red-600 animate-pulse'
-          : 'bg-green-500 hover:bg-green-600'
-      )}
-      aria-label={isRunning ? 'Stop running program' : 'Execute the code'}
-      onClick={p.onCodeExec}
-    >
-      {isRunning ? (
-        <>
-          Stop
-          <CancelIcon size={runIconSize} />
-        </>
-      ) : (
-        <>
-          Run
-          <PlayIcon size={runIconSize} />
-        </>
-      )}
-    </button>
-  );
-}
-
+/*
 function OutputChangeSizeBtn(p: {
   label: string;
   activeState: OutputShowState;
@@ -119,3 +89,4 @@ function OutputChangeSizeBtn(p: {
     </button>
   );
 }
+*/

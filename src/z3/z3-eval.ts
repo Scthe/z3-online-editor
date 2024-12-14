@@ -1,26 +1,24 @@
-import { Z3_Wrapper } from './z3-api';
+import { IContextZ3, Z3_Wrapper } from './z3-api';
 
-export type z3_Logger = (...args: unknown[]) => void;
+type EvalFn = (ctx: IContextZ3) => Promise<void>;
 
-export const evaluateUserZ3Script = async (
-  z3: Z3_Wrapper,
-  log: z3_Logger,
-  userScriptText: string
-) => {
+export const startEvalZ3Script = (z3: Z3_Wrapper, userScriptText: string) => {
   const globalCtxKeysStr = z3.globallyAccessibleContextKeys.join(',');
+  const fnName = 'f';
 
-  const scriptFnText = `const f = async (ctx, log) => {
-      // 'let' to allow user override, don't constraint the user
+  const scriptFnText = `const ${fnName} = async (ctx, log) => {
       let { ${globalCtxKeysStr} } = ctx;
       ${userScriptText}
     };
-    f`;
+    ${fnName}`;
 
   // https://esbuild.github.io/content-types/#direct-eval
-  const scriptFn = window.eval(scriptFnText);
+  const scriptFn: EvalFn = window.eval(scriptFnText);
 
   const ctx = new z3.ContextCtor('main');
   // const solver = new ctx.Solver();
-  scriptFn(ctx, log);
+  const resultAsync = scriptFn(ctx);
   // console.log(await solver.check());
+
+  return { ctx, resultAsync };
 };
