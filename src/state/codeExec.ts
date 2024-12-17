@@ -6,10 +6,10 @@ export type CodeExecState = {
   lastFilename?: string;
 };
 
-const DEFAULT_EXEC_STATE: CodeExecState = { status: 'idle' };
+const DEFAULT_STATE: CodeExecState = { status: 'idle' };
 
-export const useCodeExecStateStore = create(
-  combine(DEFAULT_EXEC_STATE as CodeExecState, (set) => ({
+export const useCodeExecState = create(
+  combine(DEFAULT_STATE as CodeExecState, (set) => ({
     setExecState: (nextState: CodeExecState) => set(() => nextState),
   }))
 );

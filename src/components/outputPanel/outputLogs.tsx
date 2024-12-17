@@ -1,12 +1,12 @@
 import React, { Fragment, memo, useRef } from 'react';
 import { useEffect, useState } from 'react';
 import cx from 'classnames';
-import { JsonInspector } from './jsonInspector';
+import { JsonInspector } from '../jsonInspector';
 import classNames from 'classnames';
-import { LoggedObject, LogLine, useLogStore } from '../state/logs';
+import { LoggedObject, LogLine, useLogs } from '../../state/logs';
 
 export function OutputLogs() {
-  const lines = useLogStore((s) => s.entries);
+  const lines = useLogs((s) => s.entries);
   const [isAutoScroll, setAutoScroll] = useState(true); // TODO autoscroll ON/OFF
   const listElRef = useRef<HTMLLIElement>(null);
 

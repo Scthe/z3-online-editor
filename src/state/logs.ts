@@ -23,7 +23,7 @@ export interface LogLine {
 const MAX_ENTRIES = 200;
 let NEXT_LOG_LINE_ID = 1;
 
-export const useLogStore = create(
+export const useLogs = create(
   combine({ entries: [] as LogLine[] }, (set) => ({
     addLogEntry: (entry: ConsoleInterceptorParams) =>
       set((prevState) => {
@@ -39,7 +39,7 @@ export const useLogStore = create(
 );
 
 CONSOLE_INTERCEPTOR.add((params) => {
-  useLogStore.getState().addLogEntry(params);
+  useLogs.getState().addLogEntry(params);
 });
 
 function parseLogEntry({ level, args }: ConsoleInterceptorParams): LogLine {

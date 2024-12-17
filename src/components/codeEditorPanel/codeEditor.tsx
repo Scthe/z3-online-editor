@@ -1,10 +1,10 @@
 import React from 'react';
 import Editor from '@monaco-editor/react';
 import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
-import { Z3_Wrapper } from '../z3/z3-api';
-import { injectZ3IntoMonacoEditor } from '../z3/z3-monaco';
-import { VfsFile } from '../vfs';
-import { WithClassName } from '../utils';
+import { Z3_Wrapper } from '../../z3/z3-api';
+import { injectZ3IntoMonacoEditor } from '../../z3/z3-monaco';
+import { VfsFile } from '../../vfs';
+import { WithClassName } from '../../utils';
 
 // TODO remove monaco scroll, it's distracting. Use whole page's scroll
 

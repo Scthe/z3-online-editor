@@ -1,8 +1,8 @@
 import { useCallback, useRef } from 'react';
-import { useCodeExecStateStore } from '../state/codeExec';
+import { useCodeExecState } from '../state/codeExec';
 import { startEvalZ3Script } from '../z3/z3-eval';
 import { Z3_Wrapper } from '../z3/z3-api';
-import { useLogStore } from '../state/logs';
+import { useLogs } from '../state/logs';
 import { CONSOLE_INTERCEPTOR } from '../utils/consoleIntercept';
 
 interface File {
@@ -13,8 +13,8 @@ interface File {
 type AbortCtrl = () => void;
 
 export function useExecCode(z3: Z3_Wrapper) {
-  const setExecState = useCodeExecStateStore((s) => s.setExecState);
-  const clearLogs = useLogStore((s) => s.clearLogs);
+  const setExecState = useCodeExecState((s) => s.setExecState);
+  const clearLogs = useLogs((s) => s.clearLogs);
 
   const abortCtrlRef = useRef<AbortCtrl | undefined>(undefined);
 

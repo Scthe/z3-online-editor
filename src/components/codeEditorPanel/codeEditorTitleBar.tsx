@@ -1,6 +1,6 @@
 import React from 'react';
-import { OnCodeExec, RunCodeBtn } from './runCodeBtn';
-import { TitleBar } from './outputTitleBar';
+import { OnCodeExec, RunCodeBtn } from '../runCodeBtn';
+import { TitleBar } from '../panels';
 
 interface Props {
   filename: string;
