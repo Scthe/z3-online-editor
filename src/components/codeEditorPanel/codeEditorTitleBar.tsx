@@ -1,6 +1,12 @@
 import React from 'react';
 import { OnCodeExec, RunCodeBtn } from '../runCodeBtn';
-import { TitleBar } from '../panels';
+import {
+  TitleBar,
+  ToggleFilesSidebarBtn,
+  ToggleLayoutBtn,
+  ToolbarIcons,
+} from '../titleBar';
+import { GitHubBtn } from '../githubButton';
 
 interface Props {
   filename: string;
@@ -9,14 +15,21 @@ interface Props {
 
 export function CodeEditorTitleBar(p: Props) {
   return (
-    <TitleBar>
-      <div className=""></div>
-
-      <h2 className="truncate">{p.filename}</h2>
-
-      <div className="">
-        <RunCodeBtn onCodeExec={p.onCodeExec} />
-      </div>
-    </TitleBar>
+    <TitleBar
+      title={p.filename}
+      className="h-[32px]"
+      leftSection={
+        <ToolbarIcons>
+          <ToggleFilesSidebarBtn />
+          <ToggleLayoutBtn />
+        </ToolbarIcons>
+      }
+      rightSection={
+        <ToolbarIcons>
+          <GitHubBtn size={20} />
+          <RunCodeBtn onCodeExec={p.onCodeExec} />
+        </ToolbarIcons>
+      }
+    />
   );
 }

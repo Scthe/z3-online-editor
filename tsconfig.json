@@ -11,18 +11,29 @@
     "target": "es6",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "baseUrl": "./",
+    "baseUrl": "src/",
     "jsx": "react",
     "incremental": true,
     "noImplicitAny": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "strictNullChecks": true,
+    "allowSyntheticDefaultImports": true,
+    "allowImportingTsExtensions": true,
     "plugins": [],
     "paths": {
       "*": ["node_modules/*"]
     },
     "typeRoots": ["./node_modules/@types", "./types"]
   },
-  "include": ["./**/*.ts", "./**/*.tsx"]
+  // "include": ["./**/*.ts", "./**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": [
+    "src/vfs/default-file.z3.mts",
+    "_references",
+    "src/vfs/",
+    "src/vfs/**/*.z3.mts",
+    "./src/vfs/",
+    "./src/vfs/**/*.z3.mts"
+  ]
 }

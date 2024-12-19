@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Z3 editor</title>
+    <title>Z3 Online Editor</title>
     <meta
       name="description"
       content="Simple online editor for Microsoft's Z3 (using z3-solver)."
@@ -30,12 +30,31 @@
       html {
         font-family: 'Merriweather Sans', sans-serif !important;
       }
+
+      #error-wrapper {
+        color: aliceblue;
+        display: none;
+        width: 100vw;
+        height: 100vh;
+        align-items: center;
+        justify-content: center;
+      }
+      #error-msg {
+        max-width: 50%;
+        white-space: pre-line;
+        line-height: 1.7em;
+        font-size: 1.2em;
+      }
     </style>
 
     <link rel="stylesheet" type="text/css" href="index.css" />
   </head>
   <body>
     <div id="root"><!--app-html--></div>
+
+    <div id="error-wrapper">
+      <pre id="error-msg"></pre>
+    </div>
 
     <!-- z3 scripts -->
     <!-- https://github.com/bakkot/z3-web-demo/blob/22714b62ddc86f255827e998149e2ae86c456def/index.html -->

@@ -2,7 +2,7 @@
 import { typesafeObjectKeys } from '.';
 import { createEventEmitter } from './eventEmitter';
 
-export type ConsoleLevel = keyof typeof orgConsole;
+export type ConsoleLevel = keyof typeof orgConsole | 'meta';
 export type ConsoleInterceptorParams = { level: ConsoleLevel; args: unknown[] };
 
 export const CONSOLE_INTERCEPTOR = {

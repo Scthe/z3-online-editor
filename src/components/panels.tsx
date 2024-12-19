@@ -1,4 +1,4 @@
-import React, { ComponentProps, forwardRef, PropsWithChildren } from 'react';
+import React, { ComponentProps, forwardRef } from 'react';
 import classNames from 'classnames';
 import {
   ImperativePanelHandle,
@@ -6,20 +6,6 @@ import {
   PanelResizeHandle,
 } from 'react-resizable-panels';
 import { useLayoutState } from '../state/layout';
-import { WithClassName } from '../utils';
-
-export function TitleBar(p: PropsWithChildren & WithClassName) {
-  return (
-    <div
-      className={classNames(
-        p.className,
-        'flex items-center justify-between gap-2 px-2 py-1 bg-toolbar'
-      )}
-    >
-      {p.children}
-    </div>
-  );
-}
 
 type MyPanelProps = ComponentProps<typeof Panel>;
 

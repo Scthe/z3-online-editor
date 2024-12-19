@@ -9,3 +9,11 @@ const solver = new ctx.Solver();
 solver.add(And(x.ge(0), x.le(9)));
 const result = await solver.check();
 console.log(result);
+
+const model = solver.model();
+console.log('x', model.eval(x).toString());
+for (const k of model.values()) {
+  console.log(k.name(), model.eval(k.call()).toString());
+}
+
+// TODO example of many solutions

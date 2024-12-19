@@ -3,7 +3,7 @@ import { TooltipProps } from 'rc-tooltip/lib/Tooltip';
 import 'rc-tooltip/assets/bootstrap_white.css';
 import React from 'react';
 
-type Placement =
+export type TooltipPlacement =
   | 'top'
   | 'left'
   | 'right'
@@ -19,7 +19,7 @@ type Placement =
 
 type Props = Omit<TooltipProps, 'overlay' | 'showArrow'> & {
   text: string;
-  placement: Placement;
+  placement: TooltipPlacement;
 };
 
 export const MyTooltip = ({ children, text, ...rest }: Props) => {

@@ -1,13 +1,16 @@
 import React, { Fragment, memo, useRef } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import cx from 'classnames';
 import { JsonInspector } from '../jsonInspector';
 import classNames from 'classnames';
 import { LoggedObject, LogLine, useLogs } from '../../state/logs';
 
-export function OutputLogs() {
+interface Props {
+  isAutoScroll: boolean;
+}
+
+export function OutputLogs({ isAutoScroll }: Props) {
   const lines = useLogs((s) => s.entries);
-  const [isAutoScroll, setAutoScroll] = useState(true); // TODO autoscroll ON/OFF
   const listElRef = useRef<HTMLLIElement>(null);
 
   useEffect(() => {
@@ -28,7 +31,7 @@ export function OutputLogs() {
   }, [lines, isAutoScroll]);
 
   return (
-    <ol className="h-0 px-2 pb-2 overflow-y-auto grow">
+    <ol className="h-0 px-2 pb-4 overflow-y-auto grow">
       {lines.map((line) => (
         <LogLineItem key={line.id} {...line} />
       ))}
@@ -49,12 +52,13 @@ function LogLineItem__(line: LogLine) {
   return (
     <li
       className={cx(
-        'mt-1',
+        level !== 'meta' && 'mt-[1px]',
         level === 'error' && 'bg-red-900/30',
-        level === 'warn' && 'bg-yellow-900/30'
+        level === 'warn' && 'bg-yellow-900/30',
+        level === 'meta' && 'bg-accent-900'
       )}
     >
-      <p>
+      <p className="text-sm break-words">
         {parts.map((e, idx) => (
           <Fragment key={idx}>
             {idx > 0 ? ' ' : null}
@@ -80,7 +84,11 @@ function ExtraObjects({ values }: { values: LoggedObject[] }) {
         <li key={name} className="flex gap-2">
           <p className={classNames('', className)}>{name}:</p>
           <div className="mt-[4px]">
-            <JsonInspector value={value} />
+            {typeof value === 'string' ? (
+              value
+            ) : (
+              <JsonInspector value={value} />
+            )}
           </div>
         </li>
       ))}

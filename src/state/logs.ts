@@ -1,4 +1,4 @@
-import { takeLastItems } from '../utils';
+import { safeJsonStringify, takeLastItems } from '../utils';
 import {
   CONSOLE_INTERCEPTOR,
   ConsoleInterceptorParams,
@@ -9,7 +9,7 @@ import { combine } from 'zustand/middleware';
 
 export interface LoggedObject {
   name: string;
-  value: object;
+  value: object | string;
   className: string;
 }
 
@@ -42,6 +42,13 @@ CONSOLE_INTERCEPTOR.add((params) => {
   useLogs.getState().addLogEntry(params);
 });
 
+useLogs.getState().addLogEntry({
+  level: 'meta',
+  args: [
+    'Everything printed in this window is also accessible browser dev-tools',
+  ],
+});
+
 function parseLogEntry({ level, args }: ConsoleInterceptorParams): LogLine {
   return {
     id: NEXT_LOG_LINE_ID++,
@@ -55,16 +62,26 @@ function parseLogArgs(args: unknown[]): LogLine['parts'] {
   let nextExtraId = 0;
   const COLORS = ['sky', 'pink', 'lime', 'violet'].map((e) => `text-${e}-500`);
 
-  return args.map((value: unknown) => {
+  return args.map((value: unknown): string | LoggedObject => {
     if (Array.isArray(value)) {
       const className = COLORS[nextExtraId % COLORS.length];
       const name = `$Array_${nextExtraId++}`;
-      return { name, value, className };
+      return { name, className, value: cleanObjectForLogging(value) };
     }
     if (typeof value === 'object' && value != null) {
+      if (value instanceof Error) {
+        const className = 'text-red-500';
+        const name = `$Error_${nextExtraId++}`;
+        return { name, className, value: value.message };
+      }
       const className = COLORS[nextExtraId % COLORS.length];
       const name = `$Object_${nextExtraId++}`;
-      return { name, value, className };
+      return { name, className, value: cleanObjectForLogging(value) };
+    }
+    if (typeof value === 'function') {
+      const className = COLORS[nextExtraId % COLORS.length];
+      const name = `$Function_${nextExtraId++}`;
+      return { name, className, value: String(value) };
     }
 
     return '' + value;
@@ -72,3 +89,7 @@ function parseLogArgs(args: unknown[]): LogLine['parts'] {
 
   // return { text: textParts.join(' '), extraObjects };
 }
+
+const cleanObjectForLogging = (o: unknown) => {
+  return JSON.parse(safeJsonStringify(o));
+};

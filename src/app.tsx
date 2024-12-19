@@ -1,29 +1,28 @@
 import React, { useCallback, useRef } from 'react';
 import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
 import { Z3_Wrapper } from './z3/z3-api';
-import { FILES } from './vfs';
+import { FILES, MAIN_FILE as MAIN_Z3_FILE_PATH } from './vfs-content';
 import classNames from 'classnames';
-import { PanelGroup } from 'react-resizable-panels';
+import { Panel, PanelGroup } from 'react-resizable-panels';
 import { useExecCode } from './hooks/useExecCode';
 import { useCodeExecState } from './state/codeExec';
 import { useLayoutState } from './state/layout';
 import { MyPanelResizeHandle } from './components/panels';
-import { MAIN_PANEL_GROUP_ID } from './constants';
+import { WORKSPACE_PANEL_GROUP_ID } from './constants';
 import { OutputPanel } from './components/outputPanel/outputPanel';
 import { EditorPanel } from './components/codeEditorPanel/codeEditorPanel';
+import { FilesPanel } from './components/filesPanel/filesPanel';
+import { useSelectedFile } from './hooks/useSelectedFile';
 
-// TODO add support for back button to switch files
-// TODO h1 - app name
-// TODO keyboard shortcuts
-// TODO persist the user's file to localstorage
-// TODO rename: z3-online-editor
+// TODO [LOW] add support for back button to switch files
+// TODO [LOW] keyboard shortcuts
 
 interface Props {
   z3: Z3_Wrapper;
 }
 
 export const App = ({ z3 }: Props) => {
-  const file = FILES[0];
+  const selectedFile = useSelectedFile(FILES, MAIN_Z3_FILE_PATH);
 
   const editorRef = useRef<editor.IStandaloneCodeEditor | undefined>(undefined);
 
@@ -42,8 +41,8 @@ export const App = ({ z3 }: Props) => {
 
     // get current text
     const code = editorRef?.current?.getValue() || '';
-    runCode({ filename: file.name, code });
-  }, [abortRun, execState, file.name, runCode]);
+    runCode({ filename: selectedFile.filePath, code });
+  }, [abortRun, runCode, execState, selectedFile.filePath]);
 
   const layout = useLayoutState((s) => s.layout);
 
@@ -53,21 +52,29 @@ export const App = ({ z3 }: Props) => {
         'w-full min-h-svh relative font-mono bg-panelSpacing'
       )}
     >
-      <PanelGroup
-        id={MAIN_PANEL_GROUP_ID}
-        direction={layout === 'two-columns' ? 'horizontal' : 'vertical'}
-        className={classNames(layout === 'two-columns' ? '' : 'min-h-svh')}
-      >
-        <EditorPanel
-          file={file}
-          z3={z3}
-          editorRef={editorRef}
-          onCodeExec={execEditorCode}
-        />
+      <PanelGroup direction="horizontal" className="min-h-svh max-h-svh">
+        <FilesPanel activeFile={selectedFile} />
 
-        <MyPanelResizeHandle vertical={layout === 'two-columns'} />
+        <MyPanelResizeHandle vertical />
 
-        <OutputPanel key={`output-panel-${layout}`} />
+        <Panel>
+          <PanelGroup
+            id={WORKSPACE_PANEL_GROUP_ID}
+            direction={layout === 'two-columns' ? 'horizontal' : 'vertical'}
+            className={classNames(layout === 'two-columns' ? '' : 'min-h-svh')}
+          >
+            <EditorPanel
+              activeFile={selectedFile}
+              z3={z3}
+              editorRef={editorRef}
+              onCodeExec={execEditorCode}
+            />
+
+            <MyPanelResizeHandle vertical={layout === 'two-columns'} />
+
+            <OutputPanel key={`output-panel-${layout}`} />
+          </PanelGroup>
+        </Panel>
       </PanelGroup>
     </main>
   );

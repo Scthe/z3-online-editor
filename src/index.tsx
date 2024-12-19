@@ -4,8 +4,9 @@ import ReactDOM from 'react-dom/client';
 import { isProductionBuild } from './utils';
 import { App } from './app';
 import { initZ3 } from './z3/z3-api';
-import { FILES } from './vfs';
-// import { injectZ3IntoMonacoEditor } from './z3/z3-monaco';
+import { FILES } from './vfs-content';
+import { vfsDebugTree } from './vfs-impl';
+import { restoreVirtualFs } from './vfs-impl/vfsPersist';
 
 /*
 (function () {
@@ -23,13 +24,17 @@ async function main() {
   const z3InitResult = await initZ3();
   if (z3InitResult.status === 'error') {
     const err = z3InitResult.error;
-    // TODO print to screen
+    const errMsg = err instanceof Error ? err.message : 'Unknown error';
+    showErrorMessage(`Z3 init error: ${errMsg}`);
     return;
   }
 
-  // injectZ3IntoMonacoEditor();
-
-  console.log('FILES', FILES);
+  try {
+    restoreVirtualFs(FILES);
+  } catch (e) {
+    console.error('Could not restore local file system changes', e);
+  }
+  vfsDebugTree(FILES);
 
   const root = ReactDOM.createRoot(document.getElementById('root')!);
   root.render(
@@ -40,3 +45,10 @@ async function main() {
 }
 
 main();
+
+function showErrorMessage(msg: string) {
+  const wrapperEl = document.getElementById('error-wrapper')!;
+  const textEl = document.getElementById('error-msg')!;
+  wrapperEl.style.display = 'flex';
+  textEl.textContent = msg;
+}
