@@ -1,6 +1,9 @@
 import { Context, init, Z3HighLevel } from 'z3-solver/build/browser';
 import { getPluckedContextKeys } from './z3-ctxPluck';
-import { downloadTypingsZ3, ExtraTypingFiles } from './z3-monaco';
+import { FULL_Z3_TYPINGS } from '../vfs-content/types';
+
+// https://github.com/bakkot/z3-web-demo
+// https://github.com/microsoft/z3guide/issues/43
 
 export type IContextZ3 = Context<'main'>;
 
@@ -8,11 +11,16 @@ interface MyContextCtor {
   new (name: string, options?: Record<string, unknown>): IContextZ3;
 }
 
+type TypingsFile = {
+  moduleName: string;
+  content: string;
+};
+
 export interface Z3_Wrapper {
   z3: Z3HighLevel;
   ContextCtor: MyContextCtor;
   globallyAccessibleContextKeys: Array<keyof IContextZ3>;
-  extraTypingExternalFiles: ExtraTypingFiles;
+  extraTypingExternalFiles: TypingsFile[];
 }
 
 type InitReturnType =
@@ -28,11 +36,14 @@ export async function initZ3(): Promise<InitReturnType> {
     }
 
     const z3 = await init();
+
+    // https://microsoft.github.io/z3guide/programming/Parameters/
+    z3.setParam('pp.decimal', 'true'); // print as values instead of sexpressions
+    // z3.setParam('dump_models', 'true');
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ContextCtor: MyContextCtor = z3.Context as any;
     const testCtx = await testApiWorks(ContextCtor);
-
-    const extraTypingExternalFiles = await downloadTypingsZ3();
 
     return {
       status: 'ok',
@@ -40,7 +51,12 @@ export async function initZ3(): Promise<InitReturnType> {
         z3,
         ContextCtor,
         globallyAccessibleContextKeys: getPluckedContextKeys(testCtx),
-        extraTypingExternalFiles,
+        extraTypingExternalFiles: [
+          {
+            moduleName: 'z3',
+            content: FULL_Z3_TYPINGS,
+          },
+        ],
       },
     };
   } catch (error) {

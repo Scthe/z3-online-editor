@@ -1,38 +1,15 @@
-import Editor from '@monaco-editor/react';
-import React from 'react';
 import { Z3_Wrapper } from './z3-api';
-import { typesafeObjectKeys } from '../utils';
-
-// trust me, this is the easiest way to get typings for Monaco
-type EditorProps = React.ComponentProps<typeof Editor>;
-type EditorOnMountFn = NonNullable<EditorProps['onMount']>;
-type Monaco = Parameters<EditorOnMountFn>[1];
-
-const EXTRA_TYPINGS = {
-  z3: 'z3-types/types.d.ts',
-};
-
-export type ExtraTypingFiles = Awaited<ReturnType<typeof downloadTypingsZ3>>;
-
-export const downloadTypingsZ3 = async () => {
-  const promises = typesafeObjectKeys(EXTRA_TYPINGS).map(async (moduleName) => {
-    const resp = await fetch(EXTRA_TYPINGS[moduleName]);
-    const content = await resp.text();
-    return { moduleName, content };
-  });
-
-  return Promise.all(promises);
-};
+import { Monaco } from '../components/codeEditorPanel/types';
 
 export const injectZ3IntoMonacoEditor = (z3: Z3_Wrapper, monaco: Monaco) => {
   const ts = monaco.languages.typescript.typescriptDefaults;
+  const js = monaco.languages.typescript.javascriptDefaults;
 
   // add typings from external files
   z3.extraTypingExternalFiles.forEach((file) => {
-    ts.addExtraLib(
-      `declare module '${file.moduleName}' { ${file.content} }`,
-      file.moduleName
-    );
+    const moduleText = `declare module '${file.moduleName}' { ${file.content} }`;
+    ts.addExtraLib(moduleText, file.moduleName);
+    js.addExtraLib(moduleText, file.moduleName);
   });
 
   // add typings from my custom globally accessible stuff.
