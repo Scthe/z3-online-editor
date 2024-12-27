@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck import files as text, not as code
 import { createVirtualFileSystem, writeFile } from '../vfs-impl';
 // files
 import fileText_main from './default-file.z3.mjs';
@@ -25,6 +27,7 @@ import { FULL_Z3_TYPINGS, TYPES, Z3TypeDefinition } from './types';
 
 /*
 TODO Context e.g. PbEq, Distinct
+  - from()
 */
 
 export const FILES = createVirtualFileSystem();

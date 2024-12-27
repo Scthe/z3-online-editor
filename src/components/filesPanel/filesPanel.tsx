@@ -5,6 +5,7 @@ import { TreeFileList } from './treeFileList';
 import { TitleBar } from '../titleBar';
 import { useLayoutState } from '../../state/layout';
 import { SelectedFile } from '../../hooks/useSelectedFile';
+import { HISTORY } from '../../fileHistory';
 
 interface Props {
   activeFile: SelectedFile;
@@ -53,7 +54,7 @@ export const FilesPanel = ({ activeFile }: Props) => {
       <div className="h-0 pb-6 overflow-y-auto grow">
         <TreeFileList
           vfs={activeFile.vfs}
-          onFileSelected={activeFile.setSelectedFile}
+          onFileSelected={(filepath) => HISTORY.push(`/${filepath}`)}
           selectedFile={activeFile.filePath}
         />
       </div>

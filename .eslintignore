@@ -5,5 +5,8 @@ node_modules
 static
 build
 
+# Z3 typings file
+src/vfs-content/types/types.z3.d.ts
+
 # my
 _references

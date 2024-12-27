@@ -1,3 +1,4 @@
+// @ts-expect-error import as text, not as code
 import FULL_Z3_TYPINGS_ from './types.z3.d.ts';
 
 // JSDoc has problems in Monaco?

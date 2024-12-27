@@ -18,9 +18,7 @@ import { CONSOLE_INTERCEPTOR } from './utils/consoleIntercept';
 
 // TODO [LOW] add support for back button to switch files
 // TODO [IGNORE] optimize localstorage save
-
-// https://microsoft.github.io/z3guide/programming/Parameters/#smt
-// z3.z3.setParam('dump_models', true);
+// TODO handle app version upgrade. Should override localStorage files
 
 interface Props {
   z3: Z3_Wrapper;

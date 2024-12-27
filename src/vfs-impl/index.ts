@@ -81,7 +81,7 @@ export const getDirent = (
   let curDir: DirNode = { type: 'directory', files: vfs.files };
 
   for (const subdir of dirs) {
-    if (subdir === '.') continue;
+    if (subdir === '.' || subdir.length === 0) continue;
     const childDir = curDir.files[subdir];
     if (!childDir || childDir.type !== 'directory') return err('e-no-entry');
     curDir = childDir;
@@ -101,6 +101,9 @@ export const getFileContent = (
 
   return ok({ content: textFile.dirent.content });
 };
+
+export const isValidFilePath = (vfs: VirtualFS, path: string) =>
+  getFileContent(vfs, path).status === 'ok';
 
 export const createVirtualFileSystem = (): VirtualFS => ({
   files: {},

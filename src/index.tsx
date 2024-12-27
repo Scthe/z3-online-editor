@@ -1,24 +1,11 @@
 import './index.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { isProductionBuild } from './utils';
 import { App } from './app';
 import { initZ3 } from './z3/z3-api';
 import { FILES } from './vfs-content';
 import { vfsDebugTree } from './vfs-impl';
 import { restoreVirtualFs } from './vfs-impl/vfsPersist';
-
-/*
-(function () {
-  if (!isProductionBuild()) {
-    // eslint-disable-next-line no-console
-    console.log('Starting esbuild live reload');
-    new EventSource('/esbuild').addEventListener('change', () =>
-      location.reload()
-    );
-  }
-})();
-*/
 
 async function main() {
   const z3InitResult = await initZ3();
