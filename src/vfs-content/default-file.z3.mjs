@@ -16,4 +16,6 @@ for (const k of model.values()) {
   console.log(k.name(), model.eval(k.call()).toString());
 }
 
-// TODO example of many solutions
+// TODO get variable value by name
+// TODO types/BitVecImpl
+// update github links to commit hash
