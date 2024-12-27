@@ -6,13 +6,16 @@ import { TitleBar } from '../titleBar';
 import { useLayoutState } from '../../state/layout';
 import { SelectedFile } from '../../hooks/useSelectedFile';
 import { HISTORY } from '../../fileHistory';
+import { VirtualFS } from '../../vfs-impl/types';
+import { removePrefix } from '../../utils';
 
 interface Props {
   activeFile: SelectedFile;
+  vfs: VirtualFS;
 }
 
 /** https://github.com/Scthe/express-containers/blob/master/src/app/app.tsx */
-export const FilesPanel = ({ activeFile }: Props) => {
+export const FilesPanel = ({ vfs, activeFile }: Props) => {
   const ref = useRef<ImperativePanelHandle>(null);
   const isFirstRenderRef = useRef(true);
 
@@ -53,9 +56,9 @@ export const FilesPanel = ({ activeFile }: Props) => {
 
       <div className="h-0 pb-6 overflow-y-auto grow">
         <TreeFileList
-          vfs={activeFile.vfs}
+          vfs={vfs}
           onFileSelected={(filepath) => HISTORY.push(`/${filepath}`)}
-          selectedFile={activeFile.filePath}
+          selectedFile={removePrefix(activeFile.filePath, '/')}
         />
       </div>
     </Panel>

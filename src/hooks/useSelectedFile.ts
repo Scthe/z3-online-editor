@@ -6,7 +6,6 @@ import { HISTORY, INITAL_FILE } from '../fileHistory';
 const LANGUAGE = 'typescript';
 
 export interface SelectedFile {
-  vfs: VirtualFS; // TODO remove
   filePath: string;
   language: typeof LANGUAGE;
   content: ReturnType<typeof getFileContent>;
@@ -25,7 +24,6 @@ export function useSelectedFile(vfs: VirtualFS): SelectedFile {
   }, []);
 
   return {
-    vfs,
     filePath: selectedFile,
     language: LANGUAGE,
     content: getFileContent(vfs, selectedFile),

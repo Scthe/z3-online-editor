@@ -1,7 +1,7 @@
 import { createHashHistory } from 'history';
 import { LOCAL_STORAGE_KEYS } from './constants';
 import { isValidFilePath } from './vfs-impl';
-import { FILES, MAIN_FILE } from './vfs-content';
+import { VIRTUAL_FILE_SYSTEM, MAIN_FILE } from './vfs-content';
 import { listAllFiles } from './vfs-impl/listAllFiles';
 
 export const HISTORY = createHashHistory({});
@@ -17,7 +17,7 @@ HISTORY.listen((update) => {
 });
 
 export function getInitialFile() {
-  const vfs = FILES;
+  const vfs = VIRTUAL_FILE_SYSTEM;
 
   try {
     // try pathname

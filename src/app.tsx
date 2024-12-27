@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
 import { Z3_Wrapper } from './z3/z3-api';
-import { FILES } from './vfs-content';
+import { isReadOnly, VIRTUAL_FILE_SYSTEM } from './vfs-content';
 import classNames from 'classnames';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 import { useExecCode } from './hooks/useExecCode';
@@ -15,17 +15,19 @@ import { FilesPanel } from './components/filesPanel/filesPanel';
 import { useSelectedFile } from './hooks/useSelectedFile';
 import { useAppKeybinds } from './hooks/useAppKeybinds';
 import { CONSOLE_INTERCEPTOR } from './utils/consoleIntercept';
+import { persistVirtualFs } from './vfs-impl/vfsPersist';
+import { injectZ3IntoMonacoEditor } from './z3/z3-monaco';
 
+// TODO [HIGH] handle app version upgrade. Should override localStorage files
 // TODO [LOW] add support for back button to switch files
 // TODO [IGNORE] optimize localstorage save
-// TODO handle app version upgrade. Should override localStorage files
 
 interface Props {
   z3: Z3_Wrapper;
 }
 
 export const App = ({ z3 }: Props) => {
-  const selectedFile = useSelectedFile(FILES);
+  const selectedFile = useSelectedFile(VIRTUAL_FILE_SYSTEM);
 
   const editorRef = useRef<editor.IStandaloneCodeEditor | undefined>(undefined);
 
@@ -49,7 +51,17 @@ export const App = ({ z3 }: Props) => {
 
   const layout = useLayoutState((s) => s.layout);
 
-  const onMonacoMount = useAppKeybinds(execEditorCode);
+  const injectMonacoKeybinds = useAppKeybinds(execEditorCode);
+
+  const onEditorChange = useCallback(
+    (value: string | undefined) => {
+      if (isReadOnly(selectedFile.filePath)) {
+        return;
+      }
+      persistVirtualFs(VIRTUAL_FILE_SYSTEM, selectedFile.filePath, value || '');
+    },
+    [selectedFile.filePath]
+  );
 
   useEffect(() => {
     CONSOLE_INTERCEPTOR.enabled = true;
@@ -62,7 +74,7 @@ export const App = ({ z3 }: Props) => {
       )}
     >
       <PanelGroup direction="horizontal" className="min-h-svh max-h-svh">
-        <FilesPanel activeFile={selectedFile} />
+        <FilesPanel vfs={VIRTUAL_FILE_SYSTEM} activeFile={selectedFile} />
 
         <MyPanelResizeHandle vertical />
 
@@ -74,10 +86,14 @@ export const App = ({ z3 }: Props) => {
           >
             <EditorPanel
               activeFile={selectedFile}
-              z3={z3}
               editorRef={editorRef}
               onCodeExec={execEditorCode}
-              onEditorMount={onMonacoMount}
+              onEditorChange={onEditorChange}
+              // WARNING: this fn is called only once
+              onEditorMount={(editor, monaco) => {
+                injectZ3IntoMonacoEditor(z3, monaco);
+                injectMonacoKeybinds(editor, monaco);
+              }}
             />
 
             <MyPanelResizeHandle vertical={layout === 'two-columns'} />

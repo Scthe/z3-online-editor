@@ -22,6 +22,9 @@ export const takeLastItems = <T>(arr: T[], cnt: number) => {
   return arr.slice(Math.max(0, arr.length - cnt));
 };
 
+export const removePrefix = (str: string, prefix: string) =>
+  str.startsWith(prefix) ? str.slice(prefix.length) : str;
+
 /** Seconds to miliseconds */
 export const s2ms = (s: number) => s * 1000;
 

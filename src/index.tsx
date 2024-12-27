@@ -3,7 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './app';
 import { initZ3 } from './z3/z3-api';
-import { FILES } from './vfs-content';
+import { VIRTUAL_FILE_SYSTEM } from './vfs-content';
 import { vfsDebugTree } from './vfs-impl';
 import { restoreVirtualFs } from './vfs-impl/vfsPersist';
 
@@ -17,11 +17,11 @@ async function main() {
   }
 
   try {
-    restoreVirtualFs(FILES);
+    restoreVirtualFs(VIRTUAL_FILE_SYSTEM);
   } catch (e) {
     console.error('Could not restore local file system changes', e);
   }
-  vfsDebugTree(FILES);
+  vfsDebugTree(VIRTUAL_FILE_SYSTEM);
 
   const root = ReactDOM.createRoot(document.getElementById('root')!);
   root.render(

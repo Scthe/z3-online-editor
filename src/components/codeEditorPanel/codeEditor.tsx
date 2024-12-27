@@ -1,13 +1,10 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import Editor from '@monaco-editor/react';
 import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
-import { Z3_Wrapper } from '../../z3/z3-api';
-import { injectZ3IntoMonacoEditor } from '../../z3/z3-monaco';
 import { SelectedFile } from '../../hooks/useSelectedFile';
 import { WithClassName } from '../../utils';
-import { persistVirtualFs } from '../../vfs-impl/vfsPersist';
 import { isReadOnly } from '../../vfs-content';
-import { EditorOnMountFn } from './types';
+import { EditorOnMountFn, EditorOnTextChange } from './types';
 
 const OPTIONS: editor.IStandaloneEditorConstructionOptions = {
   // scrollBeyondLastLine: false,
@@ -35,10 +32,10 @@ const OPTIONS: editor.IStandaloneEditorConstructionOptions = {
 };
 
 interface Props extends WithClassName {
-  z3: Z3_Wrapper;
   activeFile: SelectedFile;
   editorRef: React.MutableRefObject<editor.IStandaloneCodeEditor | undefined>;
   onMount?: EditorOnMountFn;
+  onEditorChange?: EditorOnTextChange;
 }
 
 const INVALID_FILE_ERROR =
@@ -48,25 +45,17 @@ const INVALID_FILE_ERROR =
  * https://codesandbox.io/p/sandbox/multi-model-editor-kugi6?file=%2Fsrc%2FApp.js
  */
 export function CodeEditor({
+  editorRef,
   activeFile,
-  z3,
   className,
   onMount,
-  editorRef,
+  onEditorChange,
 }: Props) {
-  const { content, filePath, language, vfs } = activeFile;
+  const { content, filePath, language } = activeFile;
 
   const isReadOnly_ = isReadOnly(activeFile.filePath);
   const defaultContent: string =
     content.status === 'ok' ? content.content : INVALID_FILE_ERROR;
-
-  const onChange = useCallback(
-    (value: string | undefined) => {
-      if (isReadOnly_) return;
-      persistVirtualFs(vfs, filePath, value || '');
-    },
-    [filePath, isReadOnly_, vfs]
-  );
 
   return (
     <Editor
@@ -79,11 +68,9 @@ export function CodeEditor({
       defaultLanguage={language}
       defaultValue={defaultContent}
       options={{ ...OPTIONS, readOnly: isReadOnly_ }}
-      onChange={onChange}
+      onChange={onEditorChange}
       onMount={(editor, monaco) => {
         editorRef.current = editor;
-
-        injectZ3IntoMonacoEditor(z3, monaco);
 
         editor.getModel()?.updateOptions({ tabSize: 2 });
 
