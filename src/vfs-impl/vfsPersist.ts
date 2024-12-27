@@ -4,6 +4,7 @@ import { writeFile } from '.';
 import { s2ms } from '../utils';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { isFileWithAbsolutePath, listAllFiles } from './listAllFiles';
+import { isReadOnly } from '../vfs-content';
 
 const __persistVirtualFs = (
   vfs: VirtualFS,
@@ -12,7 +13,7 @@ const __persistVirtualFs = (
 ) => {
   writeFile(vfs, filePath, content);
 
-  const data = listAllFiles(vfs);
+  const data = listAllFiles(vfs).filter((f) => !isReadOnly(f.absolutePath));
 
   localStorage.setItem(LOCAL_STORAGE_KEYS.fileSystem, JSON.stringify(data));
 };

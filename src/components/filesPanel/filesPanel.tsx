@@ -53,7 +53,7 @@ export const FilesPanel = ({ activeFile }: Props) => {
       <div className="h-0 pb-6 overflow-y-auto grow">
         <TreeFileList
           vfs={activeFile.vfs}
-          onFileSelected={activeFile.changeSelectedFile}
+          onFileSelected={activeFile.setSelectedFile}
           selectedFile={activeFile.filePath}
         />
       </div>

@@ -12,4 +12,5 @@ const storagePrefix = 'z3-editor';
 export const LOCAL_STORAGE_KEYS = {
   fileSystem: `${storagePrefix}-fileSystem`,
   layout: `${storagePrefix}-layout`,
+  lastFile: `${storagePrefix}-lastFile`,
 };
