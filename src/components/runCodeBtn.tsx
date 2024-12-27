@@ -3,6 +3,7 @@ import React from 'react';
 import { CancelIcon, PlayIcon } from './icons';
 import { CodeExecState, useCodeExecState } from '../state/codeExec';
 import { MyTooltip } from './myTooltip';
+import { KEY_BIND_LABEL } from '../hooks/useAppKeybinds';
 
 export type OnCodeExec = () => void;
 
@@ -16,9 +17,10 @@ export function RunCodeBtn({ onCodeExec }: Props) {
   const runIconSize = '15px';
   const isRunning = execState.status === 'running';
   const label = isRunning ? 'Stop running program' : 'Execute the code';
+  const tooltip = `${label}${isRunning ? '' : ` ${KEY_BIND_LABEL.runCode}`}`;
 
   return (
-    <MyTooltip text={label} placement="bottomRight">
+    <MyTooltip text={tooltip} placement="bottomRight">
       <button
         className={classNames(
           'px-2 text-toolbar transition-colors rounded-md flex gap-1 items-center',

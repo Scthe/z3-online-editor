@@ -23,8 +23,10 @@ export function useExecCode(z3: Z3_Wrapper) {
 
   const abortCurrentProcess = useCallback(() => {
     try {
+      CONSOLE_INTERCEPTOR.enabled = false;
       abortCtrlRef.current?.();
       abortCtrlRef.current = undefined;
+      CONSOLE_INTERCEPTOR.enabled = true;
     } catch (_e) {
       //
     }
@@ -34,14 +36,12 @@ export function useExecCode(z3: Z3_Wrapper) {
     async (file: File) => {
       try {
         abortCurrentProcess();
-        demarkatePrintRuns(addLogEntry, file);
+        demarkatePrintRuns(addLogEntry, file.filename);
         setExecState({ status: 'running', lastFilename: file.filename });
 
         // eval
-        CONSOLE_INTERCEPTOR.enabled = true;
         const { ctx, resultAsync } = startEvalZ3Script(z3, file.code);
         abortCtrlRef.current = () => {
-          CONSOLE_INTERCEPTOR.enabled = false;
           ctx.interrupt();
         };
 
@@ -67,7 +67,7 @@ export function useExecCode(z3: Z3_Wrapper) {
 
 const demarkatePrintRuns = (
   logger: (entry: ConsoleInterceptorParams) => void,
-  file: File
+  filename: string
 ) => {
   const date = new Date();
 
@@ -81,6 +81,35 @@ const demarkatePrintRuns = (
   });
   logger({
     level: 'meta',
-    args: ['--- Running:', `'${file.filename}'`],
+    args: ['--- Running:', `'${filename}'`],
+  });
+  logger({
+    level: 'meta',
+    args: ['--- (Refresh the page if the interpreter gets stuck)'],
   });
 };
+
+CONSOLE_INTERCEPTOR.add(({ args }) => {
+  if (!Array.isArray(args) || !(args[0] instanceof SyntaxError)) {
+    return;
+  }
+
+  // detect typescript attempts
+  if (isTypescriptError(args[0].message)) {
+    // prevent recursion just in case
+    setTimeout(() => {
+      console.warn(
+        'Are you trying to write TypeScript? Please use JavaScript only.'
+      );
+    }, 0);
+  }
+});
+
+function isTypescriptError(errMsg: string) {
+  const errorParts = [
+    // CODE: "const a = (A:1) => { }"
+    'missing ) in parenthetical', // ff
+    "Unexpected token ':'", // Chrome
+  ];
+  return errorParts.findIndex((part) => errMsg.includes(part)) !== -1;
+}

@@ -4,6 +4,7 @@ import { useLayoutState } from '../state/layout';
 import { ArrayElement, typesafeObjectKeys, WithClassName } from '../utils';
 import { MyTooltip, TooltipPlacement } from './myTooltip';
 import * as icons from './icons';
+import { KEY_BIND_LABEL } from '../hooks/useAppKeybinds';
 
 const ICON_NAMES = typesafeObjectKeys(icons);
 type IconName = ArrayElement<typeof ICON_NAMES>;
@@ -38,6 +39,7 @@ export const ToolbarIcons = (p: PropsWithChildren) => (
 
 export function ToolbarIconBtn(p: {
   label: string;
+  tooltip?: string;
   icon: IconName;
   iconClassName?: string;
   tooltipPlacement: TooltipPlacement;
@@ -47,7 +49,10 @@ export function ToolbarIconBtn(p: {
   const Icon = icons[p.icon];
 
   return (
-    <MyTooltip placement={p.tooltipPlacement || 'bottomRight'} text={p.label}>
+    <MyTooltip
+      placement={p.tooltipPlacement || 'bottomRight'}
+      text={p.tooltip || p.label}
+    >
       <button
         type="button"
         aria-label={p.label}
@@ -85,10 +90,12 @@ export function ToggleLayoutBtn() {
 export function ToggleFilesSidebarBtn() {
   const showFilesPanel = useLayoutState((s) => s.showFilesPanel);
   const toggleShowFilesPanel = useLayoutState((s) => s.toggleShowFilesPanel);
+  const label = showFilesPanel ? 'Hide files panel' : 'Show files panel';
 
   return (
     <ToolbarIconBtn
-      label={showFilesPanel ? 'Hide files panel' : 'Show files panel'}
+      label={label}
+      tooltip={`${label} ${KEY_BIND_LABEL.toggleFilesSidebar}`}
       // icon={showFilesPanel ? 'SquareIcon' : 'SidebarIcon'}
       icon="SidebarIcon"
       onClick={toggleShowFilesPanel}

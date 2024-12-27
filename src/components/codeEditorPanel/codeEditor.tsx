@@ -6,6 +6,8 @@ import { injectZ3IntoMonacoEditor } from '../../z3/z3-monaco';
 import { SelectedFile } from '../../hooks/useSelectedFile';
 import { WithClassName } from '../../utils';
 import { persistVirtualFs } from '../../vfs-impl/vfsPersist';
+import { isReadOnly } from '../../vfs-content';
+import { EditorOnMountFn } from './types';
 
 const OPTIONS: editor.IStandaloneEditorConstructionOptions = {
   // scrollBeyondLastLine: false,
@@ -19,12 +21,24 @@ const OPTIONS: editor.IStandaloneEditorConstructionOptions = {
     // alwaysConsumeMouseWheel: false,
     useShadows: false,
   },
+  tabSize: 2,
+  autoIndent: 'full',
+  detectIndentation: false,
+  formatOnType: true,
+  formatOnPaste: true,
+  insertSpaces: true,
+  fixedOverflowWidgets: true,
+  readOnlyMessage: {
+    value: 'This file is read-only',
+    isTrusted: true,
+  },
 };
 
 interface Props extends WithClassName {
   z3: Z3_Wrapper;
   activeFile: SelectedFile;
   editorRef: React.MutableRefObject<editor.IStandaloneCodeEditor | undefined>;
+  onMount?: EditorOnMountFn;
 }
 
 const INVALID_FILE_ERROR =
@@ -33,17 +47,25 @@ const INVALID_FILE_ERROR =
 /**
  * https://codesandbox.io/p/sandbox/multi-model-editor-kugi6?file=%2Fsrc%2FApp.js
  */
-export function CodeEditor({ activeFile, z3, className, editorRef }: Props) {
+export function CodeEditor({
+  activeFile,
+  z3,
+  className,
+  onMount,
+  editorRef,
+}: Props) {
   const { content, filePath, language, vfs } = activeFile;
 
+  const isReadOnly_ = isReadOnly(activeFile.filePath);
   const defaultContent: string =
     content.status === 'ok' ? content.content : INVALID_FILE_ERROR;
 
   const onChange = useCallback(
     (value: string | undefined) => {
+      if (isReadOnly_) return;
       persistVirtualFs(vfs, filePath, value || '');
     },
-    [filePath, vfs]
+    [filePath, isReadOnly_, vfs]
   );
 
   return (
@@ -56,12 +78,16 @@ export function CodeEditor({ activeFile, z3, className, editorRef }: Props) {
       path={filePath}
       defaultLanguage={language}
       defaultValue={defaultContent}
-      options={OPTIONS}
+      options={{ ...OPTIONS, readOnly: isReadOnly_ }}
       onChange={onChange}
       onMount={(editor, monaco) => {
         editorRef.current = editor;
 
         injectZ3IntoMonacoEditor(z3, monaco);
+
+        editor.getModel()?.updateOptions({ tabSize: 2 });
+
+        onMount?.(editor, monaco);
       }}
     />
   );

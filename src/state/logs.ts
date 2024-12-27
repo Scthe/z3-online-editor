@@ -45,7 +45,7 @@ CONSOLE_INTERCEPTOR.add((params) => {
 useLogs.getState().addLogEntry({
   level: 'meta',
   args: [
-    'Everything printed in this window is also accessible browser dev-tools',
+    'Everything printed in this window is also accessible in browser dev-tools',
   ],
 });
 

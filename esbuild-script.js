@@ -8,7 +8,7 @@ const { readFile } = require('fs/promises');
 const ImportZ3TypeScriptAsTextPlugin = {
   name: 'CSSMinifyPlugin',
   setup(build) {
-    build.onLoad({ filter: /\.z3\.m?ts$/ }, async (args) => {
+    build.onLoad({ filter: /\.z3(\.d)?\.m?[tj]s$/ }, async (args) => {
       // console.log('.z3.ts file', args);
       const contents = await readFile(args.path);
       return { loader: 'text', contents };

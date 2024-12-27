@@ -52,9 +52,10 @@ function LogLineItem__(line: LogLine) {
   return (
     <li
       className={cx(
+        'px-1',
         level !== 'meta' && 'mt-[1px]',
         level === 'error' && 'bg-red-900/30',
-        level === 'warn' && 'bg-yellow-900/30',
+        level === 'warn' && 'bg-yellow-900/80',
         level === 'meta' && 'bg-accent-900'
       )}
     >

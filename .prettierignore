@@ -1,0 +1,4 @@
+# src/vfs-content/types
+# src/vfs-content/types/old
+src/vfs-content/types/types.z3.d.ts
+static/z3-types
