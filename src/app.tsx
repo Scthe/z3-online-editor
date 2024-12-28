@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
 import { Z3_Wrapper } from './z3/z3-api';
-import { isReadOnly, VIRTUAL_FILE_SYSTEM } from './vfs-content';
 import classNames from 'classnames';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 import { useExecCode } from './hooks/useExecCode';
@@ -15,8 +14,9 @@ import { FilesPanel } from './components/filesPanel/filesPanel';
 import { useSelectedFile } from './hooks/useSelectedFile';
 import { useAppKeybinds } from './hooks/useAppKeybinds';
 import { CONSOLE_INTERCEPTOR } from './utils/consoleIntercept';
-import { persistVirtualFs } from './vfs-impl/vfsPersist';
 import { injectZ3IntoMonacoEditor } from './z3/z3-monaco';
+import { useVirtualFs } from './vfs-impl/hooks';
+import { persistVirtualFsFile } from './vfs-impl/persist';
 
 // TODO [HIGH] handle app version upgrade. Should override localStorage files
 // TODO [LOW] add support for back button to switch files
@@ -24,16 +24,14 @@ import { injectZ3IntoMonacoEditor } from './z3/z3-monaco';
 
 interface Props {
   z3: Z3_Wrapper;
+  initialFile: string;
 }
 
-export const App = ({ z3 }: Props) => {
-  const selectedFile = useSelectedFile(VIRTUAL_FILE_SYSTEM);
+export const App = ({ z3, initialFile }: Props) => {
+  const vfs = useVirtualFs();
+  const selectedFile = useSelectedFile(initialFile);
 
   const editorRef = useRef<editor.IStandaloneCodeEditor | undefined>(undefined);
-
-  // useEffect(() => {
-  // editorRef.current?.focus();
-  // }, [file.name]);
 
   const execState = useCodeExecState((s) => s.status);
   const { abortRun, runCode } = useExecCode(z3);
@@ -46,8 +44,8 @@ export const App = ({ z3 }: Props) => {
 
     // get current text
     const code = editorRef?.current?.getValue() || '';
-    runCode({ filename: selectedFile.filePath, code });
-  }, [abortRun, runCode, execState, selectedFile.filePath]);
+    runCode({ filename: selectedFile, code });
+  }, [abortRun, runCode, execState, selectedFile]);
 
   const layout = useLayoutState((s) => s.layout);
 
@@ -55,12 +53,12 @@ export const App = ({ z3 }: Props) => {
 
   const onEditorChange = useCallback(
     (value: string | undefined) => {
-      if (isReadOnly(selectedFile.filePath)) {
-        return;
+      value = value || '';
+      if (vfs.updateFile(selectedFile, value) === 'ok') {
+        persistVirtualFsFile(selectedFile, value);
       }
-      persistVirtualFs(VIRTUAL_FILE_SYSTEM, selectedFile.filePath, value || '');
     },
-    [selectedFile.filePath]
+    [selectedFile, vfs]
   );
 
   useEffect(() => {
@@ -74,7 +72,7 @@ export const App = ({ z3 }: Props) => {
       )}
     >
       <PanelGroup direction="horizontal" className="min-h-svh max-h-svh">
-        <FilesPanel vfs={VIRTUAL_FILE_SYSTEM} activeFile={selectedFile} />
+        <FilesPanel activeFile={selectedFile} />
 
         <MyPanelResizeHandle vertical />
 

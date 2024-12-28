@@ -1,14 +1,9 @@
 import { createHashHistory } from 'history';
 import { LOCAL_STORAGE_KEYS } from './constants';
-import { isValidFilePath } from './vfs-impl';
-import { VIRTUAL_FILE_SYSTEM, MAIN_FILE } from './vfs-content';
-import { listAllFiles } from './vfs-impl/listAllFiles';
+import { VirtualFs } from './vfs-impl';
+import { MAIN_FILE } from './vfs-content';
 
 export const HISTORY = createHashHistory({});
-
-export const INITAL_FILE = getInitialFile();
-// eslint-disable-next-line no-console
-console.log(`Inital file '${INITAL_FILE}'`);
 
 HISTORY.listen((update) => {
   const { pathname } = update.location;
@@ -16,32 +11,32 @@ HISTORY.listen((update) => {
   localStorage.setItem(LOCAL_STORAGE_KEYS.lastFile, pathname);
 });
 
-export function getInitialFile() {
-  const vfs = VIRTUAL_FILE_SYSTEM;
+export function getInitialFile(vfs: VirtualFs) {
+  const isValidFilePath = (path: string) => vfs.exists(path);
 
   try {
     // try pathname
     const { pathname } = HISTORY.location;
-    if (isValidFilePath(vfs, pathname)) {
+    if (isValidFilePath(pathname)) {
       return pathname;
     }
 
     // try from localStorage
     const pathnameLocalStorage = getLastFileByLocalStorage();
-    if (pathnameLocalStorage && isValidFilePath(vfs, pathnameLocalStorage)) {
+    if (pathnameLocalStorage && isValidFilePath(pathnameLocalStorage)) {
       return pathnameLocalStorage;
     }
 
     // try main.mjs
-    if (isValidFilePath(vfs, MAIN_FILE)) {
+    if (isValidFilePath(MAIN_FILE)) {
       return MAIN_FILE;
     }
 
     // try anything
-    const files = listAllFiles(vfs);
+    const files = vfs.listFiles();
     for (const file of files) {
-      if (isValidFilePath(vfs, file.absolutePath)) {
-        return file.absolutePath;
+      if (isValidFilePath(file.path)) {
+        return file.path;
       }
     }
   } catch (e) {

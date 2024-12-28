@@ -7,7 +7,7 @@ import {
   ToolbarIcons,
 } from '../titleBar';
 import { GitHubBtn } from '../githubButton';
-import { isReadOnly } from '../../vfs-content';
+import { useVirtualFsFile } from '../../vfs-impl/hooks';
 
 interface Props {
   filename: string;
@@ -15,7 +15,9 @@ interface Props {
 }
 
 export function CodeEditorTitleBar(p: Props) {
-  const readOnlyText = isReadOnly(p.filename) ? ' (read-only)' : '';
+  const file = useVirtualFsFile(p.filename);
+  const readOnlyText = file.mode === 'readonly' ? ' (read-only)' : '';
+
   return (
     <TitleBar
       title={`${p.filename}${readOnlyText}`}

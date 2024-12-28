@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import TreeView, {
-  flattenTree,
   INode,
   INodeRendererProps,
   ITreeViewOnNodeSelectProps,
@@ -8,47 +7,46 @@ import TreeView, {
 import { DiCss3, DiJavascript, DiNpm } from 'react-icons/di';
 import { FaFile, FaList, FaRegFolder, FaRegFolderOpen } from 'react-icons/fa';
 import './treeFileList.css';
-import { IFlatMetadata } from 'react-accessible-treeview/dist/TreeView/utils';
 import classNames from 'classnames';
-import { FileDirent, joinPath, VirtualFS } from '../../vfs-impl';
+import { useVirtualFs } from '../../vfs-impl/hooks';
+import { removePrefix } from '../../utils';
+import {
+  getNodeAbsPath,
+  MyNodeMetadata,
+  adaptVirtualFsForRender,
+} from './adaptVirtualFsForRender';
 
-type ITreeNode = Parameters<typeof flattenTree>[0];
+interface Props {
+  selectedFile: string;
+  onFileSelected?: (path: string) => void;
+}
 
 /**
  * - https://dgreene1.github.io/react-accessible-treeview/
  * - https://github.com/Scthe/express-containers/blob/master/src/app/components/treeFileList.tsx
  */
-export function TreeFileList({
-  vfs,
-  selectedFile,
-  onFileSelected,
-}: {
-  vfs: VirtualFS;
-  selectedFile: string;
-  onFileSelected?: (path: string) => void;
-}) {
-  const [data, setData] = useState<INode<IFlatMetadata>[]>([]);
+export function TreeFileList({ selectedFile, onFileSelected }: Props) {
+  const [data, setData] = useState<INode<MyNodeMetadata>[]>([]);
+  const vfs = useVirtualFs();
 
   // we only calcuate this once. There is no way to add new file!
   useEffect(() => {
-    const data = prepareVfsForRender(vfs);
+    const data = adaptVirtualFsForRender(vfs);
     setData(data);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [vfs]);
 
   const onSelected = useCallback(
     (e: ITreeViewOnNodeSelectProps) => {
       // ignore directories
       if (e.isBranch) return;
 
-      const path = getElementPath(data, e.element);
+      const path = getNodeAbsPath(e.element);
       // eslint-disable-next-line no-console
       console.log(`Selected file: '${path}'`);
 
       onFileSelected?.(path);
     },
-    [data, onFileSelected]
+    [onFileSelected]
   );
 
   const isEmpty =
@@ -104,7 +102,7 @@ const ListItem = ({
           )}
         </div>
 
-        <span className="truncate">{element.name}</span>
+        <span className="truncate">{removePrefix(element.name, '/')}</span>
       </div>
     </div>
   );
@@ -142,56 +140,3 @@ const FileIcon = ({ filename }: { filename: string }) => {
       return null;
   }
 };
-
-const getElementPath = (
-  data: INode<IFlatMetadata>[],
-  element: INode<IFlatMetadata>
-): string => {
-  const path = [];
-  while (element && element.parent !== null) {
-    path.push(element.name);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    element = data[element.parent as any];
-  }
-
-  path.reverse();
-  return joinPath(path);
-};
-
-const getNodeAbsPath = (e: INode<IFlatMetadata>): string =>
-  String(e?.metadata?.absPath || '-');
-
-function prepareVfsForRender(vfs: VirtualFS) {
-  const addFiles = (
-    absPath: string,
-    fileName: string,
-    entry: FileDirent
-  ): ITreeNode => {
-    const metadata = { absPath };
-
-    if (entry.type === 'file') {
-      return { name: fileName, metadata };
-    }
-
-    const files = Object.keys(entry.files).sort((a, b) => {
-      const fileA = entry.files[a];
-      const fileB = entry.files[b];
-      if (!fileA) return 1;
-      if (!fileB) return -1;
-      if (fileA.type === fileB.type) return a.localeCompare(b);
-      return fileA.type === 'directory' ? -1 : 1;
-    });
-    const children: ITreeNode[] = [];
-    files.forEach((fileName) => {
-      const child = entry.files[fileName];
-      if (child) {
-        children.push(addFiles(joinPath([absPath, fileName]), fileName, child));
-      }
-    });
-
-    return { name: fileName, children, metadata };
-  };
-
-  const tree = addFiles('', '', { type: 'directory', files: vfs.files });
-  return flattenTree(tree);
-}

@@ -1,18 +1,8 @@
 import { useEffect, useState } from 'react';
-import { getFileContent, VirtualFS } from '../vfs-impl';
-import { HISTORY, INITAL_FILE } from '../fileHistory';
+import { HISTORY } from '../fileHistory';
 
-// const LANGUAGE = 'javascript';
-const LANGUAGE = 'typescript';
-
-export interface SelectedFile {
-  filePath: string;
-  language: typeof LANGUAGE;
-  content: ReturnType<typeof getFileContent>;
-}
-
-export function useSelectedFile(vfs: VirtualFS): SelectedFile {
-  const [selectedFile, setSelectedFile] = useState(INITAL_FILE);
+export function useSelectedFile(initialFile: string): string {
+  const [selectedFile, setSelectedFile] = useState(initialFile);
 
   useEffect(() => {
     const unlisten = HISTORY.listen((update) => {
@@ -23,9 +13,5 @@ export function useSelectedFile(vfs: VirtualFS): SelectedFile {
     return unlisten;
   }, []);
 
-  return {
-    filePath: selectedFile,
-    language: LANGUAGE,
-    content: getFileContent(vfs, selectedFile),
-  };
+  return selectedFile;
 }

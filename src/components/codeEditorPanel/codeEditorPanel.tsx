@@ -6,11 +6,10 @@ import { CodeEditorTitleBar } from './codeEditorTitleBar';
 import { useLayoutState } from '../../state/layout';
 import { MyPanel } from '../panels';
 import { OnCodeExec } from '../runCodeBtn';
-import { SelectedFile } from '../../hooks/useSelectedFile';
 import { EditorOnMountFn, EditorOnTextChange } from './types';
 
 interface Props {
-  activeFile: SelectedFile;
+  activeFile: string;
   editorRef: React.MutableRefObject<editor.IStandaloneCodeEditor | undefined>;
   onCodeExec: OnCodeExec;
   onEditorMount?: EditorOnMountFn;
@@ -34,10 +33,7 @@ export const EditorPanel = ({
         layout === 'two-columns' ? 'rounded-r-sm' : 'rounded-b-sm'
       )}
     >
-      <CodeEditorTitleBar
-        filename={activeFile.filePath}
-        onCodeExec={onCodeExec}
-      />
+      <CodeEditorTitleBar filename={activeFile} onCodeExec={onCodeExec} />
       <CodeEditor
         activeFile={activeFile}
         editorRef={editorRef}

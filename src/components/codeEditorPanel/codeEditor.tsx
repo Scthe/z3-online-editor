@@ -1,10 +1,9 @@
 import React from 'react';
 import Editor from '@monaco-editor/react';
 import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
-import { SelectedFile } from '../../hooks/useSelectedFile';
 import { WithClassName } from '../../utils';
-import { isReadOnly } from '../../vfs-content';
 import { EditorOnMountFn, EditorOnTextChange } from './types';
+import { useVirtualFsFile } from '../../vfs-impl/hooks';
 
 const OPTIONS: editor.IStandaloneEditorConstructionOptions = {
   // scrollBeyondLastLine: false,
@@ -32,14 +31,11 @@ const OPTIONS: editor.IStandaloneEditorConstructionOptions = {
 };
 
 interface Props extends WithClassName {
-  activeFile: SelectedFile;
+  activeFile: string;
   editorRef: React.MutableRefObject<editor.IStandaloneCodeEditor | undefined>;
   onMount?: EditorOnMountFn;
   onEditorChange?: EditorOnTextChange;
 }
-
-const INVALID_FILE_ERROR =
-  'ERROR!\n\nError reading file from the virtual filesystem. This should not happen';
 
 /**
  * https://codesandbox.io/p/sandbox/multi-model-editor-kugi6?file=%2Fsrc%2FApp.js
@@ -51,11 +47,7 @@ export function CodeEditor({
   onMount,
   onEditorChange,
 }: Props) {
-  const { content, filePath, language } = activeFile;
-
-  const isReadOnly_ = isReadOnly(activeFile.filePath);
-  const defaultContent: string =
-    content.status === 'ok' ? content.content : INVALID_FILE_ERROR;
+  const file = useVirtualFsFile(activeFile);
 
   return (
     <Editor
@@ -64,10 +56,10 @@ export function CodeEditor({
       className=""
       wrapperProps={{ className }}
       theme="vs-dark"
-      path={filePath}
-      defaultLanguage={language}
-      defaultValue={defaultContent}
-      options={{ ...OPTIONS, readOnly: isReadOnly_ }}
+      path={activeFile}
+      defaultLanguage={file.language}
+      defaultValue={file.content}
+      options={{ ...OPTIONS, readOnly: file.mode === 'readonly' }}
       onChange={onEditorChange}
       onMount={(editor, monaco) => {
         editorRef.current = editor;

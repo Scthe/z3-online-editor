@@ -3,9 +3,11 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './app';
 import { initZ3 } from './z3/z3-api';
-import { VIRTUAL_FILE_SYSTEM } from './vfs-content';
-import { vfsDebugTree } from './vfs-impl';
-import { restoreVirtualFs } from './vfs-impl/vfsPersist';
+import { loadFiles } from './vfs-content';
+import { VirtualFs } from './vfs-impl';
+import { restoreLocalVirtualFsChanges } from './vfs-impl/persist';
+import { VirtualFsContext } from './vfs-impl/hooks';
+import { getInitialFile } from './fileHistory';
 
 async function main() {
   const z3InitResult = await initZ3();
@@ -16,17 +18,27 @@ async function main() {
     return;
   }
 
+  const originalFileSystem = new VirtualFs();
+  const userFileSystem = new VirtualFs();
+  loadFiles(originalFileSystem);
+  loadFiles(userFileSystem);
+
   try {
-    restoreVirtualFs(VIRTUAL_FILE_SYSTEM);
+    restoreLocalVirtualFsChanges(userFileSystem);
   } catch (e) {
     console.error('Could not restore local file system changes', e);
   }
-  vfsDebugTree(VIRTUAL_FILE_SYSTEM);
+
+  const initalFile = getInitialFile(userFileSystem);
+  // eslint-disable-next-line no-console
+  console.log(`Inital file '${initalFile}'`);
 
   const root = ReactDOM.createRoot(document.getElementById('root')!);
   root.render(
     <React.StrictMode>
-      <App z3={z3InitResult.z3} />
+      <VirtualFsContext.Provider value={{ originalFileSystem, userFileSystem }}>
+        <App z3={z3InitResult.z3} initialFile={initalFile} />
+      </VirtualFsContext.Provider>
     </React.StrictMode>
   );
 }
