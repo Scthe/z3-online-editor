@@ -22,6 +22,7 @@ export const EditorPanel = ({
   activeFile,
   onCodeExec,
   onEditorMount,
+  onEditorChange,
 }: Props) => {
   const layout = useLayoutState((s) => s.layout);
 
@@ -41,6 +42,7 @@ export const EditorPanel = ({
         activeFile={activeFile}
         editorRef={editorRef}
         onMount={onEditorMount}
+        onEditorChange={onEditorChange}
       />
     </MyPanel>
   );

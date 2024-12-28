@@ -89,27 +89,49 @@ const demarkatePrintRuns = (
   });
 };
 
+type ExtraHints = {
+  check: (msg: string) => boolean;
+  msg: string;
+};
+
+const HINTS: ExtraHints[] = [
+  {
+    check: isTypescriptError,
+    msg: 'Are you trying to write TypeScript? Please use JavaScript only.',
+  },
+  {
+    check: isForgottenAwaitError,
+    msg: 'Did you forgot await?',
+  },
+];
+
 CONSOLE_INTERCEPTOR.add(({ args }) => {
   if (!Array.isArray(args) || !(args[0] instanceof SyntaxError)) {
     return;
   }
 
-  // detect typescript attempts
-  if (isTypescriptError(args[0].message)) {
-    // prevent recursion just in case
-    setTimeout(() => {
-      console.warn(
-        'Are you trying to write TypeScript? Please use JavaScript only.'
-      );
-    }, 0);
-  }
+  const msg = args[0].message;
+  const shownHints = HINTS.filter((hint) => hint.check(msg));
+  // console.log({ shownHints });
+
+  if (shownHints.length === 0) return;
+
+  // prevent recursion just in case
+  setTimeout(() => {
+    shownHints.forEach((hint) => console.warn(hint.msg));
+  }, 0);
 });
 
-function isTypescriptError(errMsg: string) {
+function isTypescriptError(errMsg: string): boolean {
   const errorParts = [
     // CODE: "const a = (A:1) => { }"
     'missing ) in parenthetical', // ff
+    'missing ) after formal parameters', // ff
     "Unexpected token ':'", // Chrome
   ];
-  return errorParts.findIndex((part) => errMsg.includes(part)) !== -1;
+  return errorParts.some((part) => errMsg.includes(part));
+}
+
+function isForgottenAwaitError(errMsg: string): boolean {
+  return errMsg.includes("can't execute multiple async functions");
 }

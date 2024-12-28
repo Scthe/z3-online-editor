@@ -95,7 +95,7 @@ const ListItem = ({
         isSelected && 'tree-node--selected_my'
       )}
     >
-      <div className={classNames('pl-2')}>
+      <div className={classNames('pl-2 flex')}>
         <div className={classNames('inline-block relative top-[5px]')}>
           {isBranch ? (
             <FolderIcon isOpen={isExpanded} />
@@ -104,7 +104,7 @@ const ListItem = ({
           )}
         </div>
 
-        <span>{element.name}</span>
+        <span className="truncate">{element.name}</span>
       </div>
     </div>
   );

@@ -22,6 +22,10 @@ export const takeLastItems = <T>(arr: T[], cnt: number) => {
   return arr.slice(Math.max(0, arr.length - cnt));
 };
 
+/** https://github.com/Scthe/express-containers/blob/master/src/utils/index.ts#L53 */
+export const ensurePrefix = (str: string, prefix: string) =>
+  str.startsWith(prefix) ? str : prefix + str;
+
 export const removePrefix = (str: string, prefix: string) =>
   str.startsWith(prefix) ? str.slice(prefix.length) : str;
 
