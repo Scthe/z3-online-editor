@@ -13,9 +13,13 @@ export { default as docs_solver } from './docs/solver.z3.mjs';
 export { default as docs_bitVec } from './docs/bitVec.z3.mjs';
 export { default as docs_arrays } from './docs/arrays.z3.mjs';
 export { default as docs_quantifiers } from './docs/quantifiers.z3.mjs';
+export { default as docs_context } from './docs/context.z3.mjs';
 // examples
 export { default as examples_sudoku } from './examples/sudoku.z3.mjs';
 export { default as examples_padlock } from './examples/padlock.z3.mjs';
 export { default as examples_eightQueens } from './examples/eightQueens.z3.mjs';
 export { default as examples_einsteinPuzzle } from './examples/einsteinPuzzle.z3.mjs';
 export { default as examples_physics } from './examples/physics.z3.mjs';
+export { default as examples_magicSquare } from './examples/magicSquare.z3.mjs';
+export { default as examples_dogCatMouse } from './examples/dogCatMouse.z3.mjs';
+export { default as examples_janeStreetJune2018 } from './examples/janeStreetJune2018.z3.mjs';

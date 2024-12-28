@@ -21,7 +21,9 @@ async function evalBool(expr) {
   return result === 'true';
 }
 
-// Docs: https://microsoft.github.io/z3guide/docs/theories/Bitvectors
+// Docs
+// - https://microsoft.github.io/z3guide/docs/theories/Bitvectors
+// - https://book.jorianwoltjer.com/cryptography/custom-ciphers/z3-solver#bitwise-operations
 
 const b0 = BitVec.val(0, 8); // 0 in 8bit
 const b1 = BitVec.val(1, 8); // 0b01 in 8bit
@@ -48,6 +50,15 @@ console.log(`(0b100 << 1) - (logical) shift is `, await evalBitVec(b4.lshr(1)));
 console.log(`(0b100 + 1) is `, await evalBitVec(b4.add(1)));
 console.log(`(0b100 - 1) is `, await evalBitVec(b4.sub(1)));
 console.log(`repeat(0b100, 2) is `, await evalBitVec(b4.repeat(2))); // repeat "0000 0100"
+console.log(
+  `BV2Int(0b11111111, signed) is `,
+  await evalExpr(BV2Int(b255, true))
+);
+console.log(
+  `BV2Int(0b11111111, unsigned) is `,
+  await evalExpr(BV2Int(b255, false))
+);
+console.log(`Int2BV(255, base=8) is `, await evalBitVec(Int2BV(255, 8)));
 // bitwise
 console.log(`(0b100 & 1) is `, await evalBitVec(b4.and(1)));
 console.log(`(0b100 | 1) is `, await evalBitVec(b4.or(1)));
@@ -58,12 +69,12 @@ console.log('--- operations on 0');
 console.log(`(0 + 1) is `, await evalBitVec(b0.add(1)));
 console.log(`(0 - 1) is `, await evalBitVec(b0.sub(1)));
 console.log(
-  `(0 - 1) underflows (signed):`,
+  `(0 - 1, signed) underflows:`,
   !(await evalBool(b0.subNoUndeflow(1, true)))
 );
 // unsigned is 0..255, so it undeflows at -1
 console.log(
-  `(0 - 1) underflows (unsigned):`,
+  `(0 - 1, unsigned) underflows:`,
   !(await evalBool(b0.subNoUndeflow(1, false)))
 );
 
@@ -72,12 +83,12 @@ console.log('--- operations on 255');
 console.log(`(255 + 1) is `, await evalBitVec(b255.add(1)));
 console.log(`(255 - 1) is `, await evalBitVec(b255.sub(1)));
 console.log(
-  `(255 + 1) overflows (signed):`,
+  `(255 + 1, signed) overflows:`,
   !(await evalBool(b255.addNoOverflow(1, true)))
 );
 // unsigned is 0..255, so it overflows at +1
 console.log(
-  `(255 + 1) overflows (unsigned):`,
+  `(255 + 1, unsigned) overflows:`,
   !(await evalBool(b255.addNoOverflow(1, false)))
 );
 

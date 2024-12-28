@@ -32,6 +32,34 @@ function printModelValues(prefix, model) {
   }
 }
 
+async function evalExpr(expr) {
+  const result = await simplify(expr);
+  return result.toString();
+}
+
+// Example: generic 2 OP operatiors
+const testBool = async (prefix, op, opStr) => {
+  const tt = await evalExpr(op(true, true));
+  const tf = await evalExpr(op(true, false));
+  const ft = await evalExpr(op(false, true));
+  const ff = await evalExpr(op(false, false));
+  console.log(
+    prefix,
+    `(T ${opStr} T) <=> ${tt.toUpperCase()}, `,
+    `(T ${opStr} F) <=> ${tf.toUpperCase()}, `,
+    `(F ${opStr} T) <=> ${ft.toUpperCase()}, `,
+    `(F ${opStr} F) <=> ${ff.toUpperCase()}`
+  );
+};
+await testBool('[Implies]', Implies, '->');
+await testBool('[Iff]', Iff, '<=>');
+await testBool('[Eq]', Eq, '=');
+await testBool('[Xor]', Xor, '^');
+await testBool('[And]', And, 'AND');
+await testBool('[Or]', Or, 'OR');
+console.log('[Not(true)]', await evalExpr(Not(true)));
+console.log('[Not(false)]', await evalExpr(Not(false)));
+
 // Example: Implies
 const [a0, b0] = Bool.consts('p q r');
 await assertEvaluatesTrue(

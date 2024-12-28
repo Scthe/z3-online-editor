@@ -1,3 +1,4 @@
+// https://microsoft.github.io/z3guide/docs/logic/intro/
 // https://ericpony.github.io/z3py-tutorial/guide-examples.htm
 // https://ericpony.github.io/z3py-tutorial/advanced-examples.htm
 // https://z3prover.github.io/api/html/namespacez3py.html
@@ -15,7 +16,3 @@ console.log('x', model.eval(x).toString());
 for (const k of model.values()) {
   console.log(k.name(), model.eval(k.call()).toString());
 }
-
-// TODO get variable value by name
-// TODO types/BitVecImpl
-// update github links to commit hash

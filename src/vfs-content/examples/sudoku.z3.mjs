@@ -11,7 +11,7 @@ const PUZZLE = `
 9...65...
 .4.97....
 `;
-console.log('Solving sudou:');
+console.log('Solving sudoku:');
 PUZZLE.split('\n').forEach((e) => console.log(e));
 
 const cells = [];
