@@ -13,7 +13,7 @@ type Props = PropsWithChildren &
   WithClassName & {
     isH1?: boolean;
     leftSection?: JSX.Element;
-    title: string;
+    title: string | JSX.Element;
     rightSection?: JSX.Element;
   };
 
@@ -57,7 +57,7 @@ export function ToolbarIconBtn(p: {
         type="button"
         aria-label={p.label}
         onClick={p.onClick}
-        className="transition-colors hover:text-accent-300"
+        className="transition-colors hover:text-accent-400"
       >
         <Icon size={iconSize} className={p.iconClassName} />
       </button>

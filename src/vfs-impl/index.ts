@@ -13,7 +13,8 @@ type Unlisten = () => void;
 
 export type FileMode =
   | 'readonly' // cannot be changed
-  | 'readwrite';
+  | 'system' // can be changed, but also restored
+  | 'user'; // can be changed, but no particular need to restore it
 
 export const ok = <T>(e: T) => ({ status: 'ok' as const, ...e });
 export const err = (error: FileError) => ({ status: 'error' as const, error });
@@ -31,11 +32,7 @@ export class VirtualFs {
   private listeners = createEventEmitter<string>('immediate');
   private files: Record<string, FileNode | undefined> = {};
 
-  createFile = (
-    path: string,
-    content: string,
-    mode: FileMode = 'readwrite'
-  ) => {
+  createFile = (path: string, content: string, mode: FileMode = 'system') => {
     path = VirtualFs.normalizePath(path);
     this.files[path] = { mode, content, language: 'typescript' };
     this.listeners.emit(path);
@@ -74,6 +71,12 @@ export class VirtualFs {
   addListener = (l: FileListener): Unlisten => {
     this.listeners.add(l);
     return () => this.listeners.remove(l);
+  };
+
+  addSingleFileListener = (path: string, listener: FileListener): Unlisten => {
+    return this.addListener((changedFilepath) => {
+      if (changedFilepath === path) listener(changedFilepath);
+    });
   };
 
   public static normalizePath = (path: string) => ensurePrefix(path, '/');

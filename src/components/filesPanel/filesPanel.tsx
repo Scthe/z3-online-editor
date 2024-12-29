@@ -49,14 +49,13 @@ export const FilesPanel = ({ activeFile }: Props) => {
         'bg-vscodebg rounded-r-sm min-h-full flex flex-col'
       )}
     >
-      <TitleBar isH1 title="z3 Online Editor" className="text-center" />
+      <TitleBar isH1 title="Z3 Online Editor" className="text-center" />
 
       <div className="h-0 pb-6 overflow-y-auto grow">
         <TreeFileList
           onFileSelected={(filepath) =>
             HISTORY.push(ensurePrefix(filepath, '/'))
           }
-          // TODO verify selected file is highlighted
           selectedFile={activeFile}
         />
       </div>

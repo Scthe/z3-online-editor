@@ -8,6 +8,7 @@ import { VirtualFs } from './vfs-impl';
 import { restoreLocalVirtualFsChanges } from './vfs-impl/persist';
 import { VirtualFsContext } from './vfs-impl/hooks';
 import { getInitialFile } from './fileHistory';
+import { DiscardFileContext } from './components/dialogs/discardFileDialog';
 
 async function main() {
   const z3InitResult = await initZ3();
@@ -37,7 +38,9 @@ async function main() {
   root.render(
     <React.StrictMode>
       <VirtualFsContext.Provider value={{ originalFileSystem, userFileSystem }}>
-        <App z3={z3InitResult.z3} initialFile={initalFile} />
+        <DiscardFileContext.Provider>
+          <App z3={z3InitResult.z3} initialFile={initalFile} />
+        </DiscardFileContext.Provider>
       </VirtualFsContext.Provider>
     </React.StrictMode>
   );

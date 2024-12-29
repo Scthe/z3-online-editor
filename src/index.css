@@ -7,6 +7,7 @@
     /* Match vscode background */
     @apply bg-vscodebg;
     @apply text-gray-100;
+    @apply font-mono;
   }
 
   *:focus,
@@ -18,6 +19,17 @@
   *:focus-visible {
     @apply ring-4;
     @apply ring-focused;
+  }
+
+  dialog[open]::backdrop {
+    @apply bg-black/50;
+  }
+
+  dialog > * {
+    @apply bg-vscodebg;
+    @apply text-gray-100;
+    @apply border-2;
+    @apply border-gray-500/10;
   }
 }
 

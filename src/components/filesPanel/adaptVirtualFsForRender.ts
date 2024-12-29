@@ -12,8 +12,23 @@ export const getNodeAbsPath = (element: INode<IFlatMetadata>): string => {
   return element2.metadata?.absPath || '';
 };
 
+export const getInitialExpandedIds = (path: string): string[] => {
+  path = removePrefix(path, '/');
+  const subdirs = path.split('/');
+  const result: string[] = [];
+
+  let absPath = '';
+  subdirs.forEach((subdir) => {
+    absPath += `/${subdir}`;
+    result.push(absPath);
+  });
+
+  return result;
+};
+
 export function adaptVirtualFsForRender(vfs: VirtualFs) {
   const tree: MyTreeNode = {
+    id: 'root',
     name: '',
     metadata: { absPath: '' },
     children: [],
@@ -33,6 +48,7 @@ export function adaptVirtualFsForRender(vfs: VirtualFs) {
       let node = dir.children?.find((f) => f.name === subdir);
       if (node == undefined) {
         node = {
+          id: absPath,
           name: subdir,
           metadata: { absPath },
           children: [],

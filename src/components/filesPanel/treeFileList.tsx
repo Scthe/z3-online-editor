@@ -8,12 +8,13 @@ import { DiCss3, DiJavascript, DiNpm } from 'react-icons/di';
 import { FaFile, FaList, FaRegFolder, FaRegFolderOpen } from 'react-icons/fa';
 import './treeFileList.css';
 import classNames from 'classnames';
-import { useVirtualFs } from '../../vfs-impl/hooks';
+import { useIsDirty, useVirtualFs } from '../../vfs-impl/hooks';
 import { removePrefix } from '../../utils';
 import {
   getNodeAbsPath,
   MyNodeMetadata,
   adaptVirtualFsForRender,
+  getInitialExpandedIds,
 } from './adaptVirtualFsForRender';
 
 interface Props {
@@ -61,6 +62,7 @@ export function TreeFileList({ selectedFile, onFileSelected }: Props) {
       <TreeView
         data={data}
         aria-label="directory tree"
+        defaultExpandedIds={getInitialExpandedIds(selectedFile)}
         onNodeSelect={onSelected}
         nodeRenderer={(e) => (
           <ListItem key={e.element.id} {...e} selectedFile={selectedFile} />
@@ -83,6 +85,7 @@ const ListItem = ({
   const nodeProps = getNodeProps();
   const absPath = getNodeAbsPath(element);
   const isSelected = absPath === selectedFile;
+  const isDirty = useIsDirty(absPath);
 
   return (
     <div
@@ -90,7 +93,8 @@ const ListItem = ({
       style={{ paddingLeft: 20 * (level - 1) }}
       className={classNames(
         nodeProps.className,
-        isSelected && 'tree-node--selected_my'
+        isSelected && 'tree-node--selected_my',
+        isDirty && 'text-yellow-400'
       )}
     >
       <div className={classNames('pl-2 flex')}>

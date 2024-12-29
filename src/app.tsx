@@ -15,12 +15,9 @@ import { useSelectedFile } from './hooks/useSelectedFile';
 import { useAppKeybinds } from './hooks/useAppKeybinds';
 import { CONSOLE_INTERCEPTOR } from './utils/consoleIntercept';
 import { injectZ3IntoMonacoEditor } from './z3/z3-monaco';
-import { useVirtualFs } from './vfs-impl/hooks';
+import { useOriginalVirtualFs, useVirtualFs } from './vfs-impl/hooks';
 import { persistVirtualFsFile } from './vfs-impl/persist';
-
-// TODO [HIGH] handle app version upgrade. Should override localStorage files
-// TODO [LOW] add support for back button to switch files
-// TODO [IGNORE] optimize localstorage save
+import { DiscardFileDialog } from './components/dialogs/discardFileDialog';
 
 interface Props {
   z3: Z3_Wrapper;
@@ -30,6 +27,7 @@ interface Props {
 export const App = ({ z3, initialFile }: Props) => {
   const vfs = useVirtualFs();
   const selectedFile = useSelectedFile(initialFile);
+  const layout = useLayoutState((s) => s.layout);
 
   const editorRef = useRef<editor.IStandaloneCodeEditor | undefined>(undefined);
 
@@ -43,16 +41,15 @@ export const App = ({ z3, initialFile }: Props) => {
     }
 
     // get current text
-    const code = editorRef?.current?.getValue() || '';
+    const code = editorRef.current?.getValue() || '';
     runCode({ filename: selectedFile, code });
   }, [abortRun, runCode, execState, selectedFile]);
-
-  const layout = useLayoutState((s) => s.layout);
 
   const injectMonacoKeybinds = useAppKeybinds(execEditorCode);
 
   const onEditorChange = useCallback(
     (value: string | undefined) => {
+      // console.log('onEditorChange', value);
       value = value || '';
       if (vfs.updateFile(selectedFile, value) === 'ok') {
         persistVirtualFsFile(selectedFile, value);
@@ -61,16 +58,28 @@ export const App = ({ z3, initialFile }: Props) => {
     [selectedFile, vfs]
   );
 
+  const originalVfs = useOriginalVirtualFs();
+  const onDiscardFileChanges = useCallback(
+    (filename: string) => {
+      // console.log('onDiscardFileChanges', filename);
+      const editor = editorRef.current;
+      if (!editor) return;
+
+      const originalFile = originalVfs.readFile(filename);
+      if (originalFile.status === 'ok') {
+        // will automatically call onEditorChange() defined above
+        editor.setValue(originalFile.content);
+      }
+    },
+    [originalVfs]
+  );
+
   useEffect(() => {
     CONSOLE_INTERCEPTOR.enabled = true;
   }, []);
 
   return (
-    <main
-      className={classNames(
-        'w-full min-h-svh relative font-mono bg-panelSpacing'
-      )}
-    >
+    <main className={classNames('w-full min-h-svh relative bg-panelSpacing')}>
       <PanelGroup direction="horizontal" className="min-h-svh max-h-svh">
         <FilesPanel activeFile={selectedFile} />
 
@@ -100,6 +109,8 @@ export const App = ({ z3, initialFile }: Props) => {
           </PanelGroup>
         </Panel>
       </PanelGroup>
+
+      <DiscardFileDialog onFileDiscard={onDiscardFileChanges} />
     </main>
   );
 };

@@ -1,16 +1,16 @@
 import React from 'react';
 
-// TODO styling, link
+// TODO [NOW] styling, link
 export const GitHubBtn = (p: { size: number }) => {
   return (
     <a
-      href="https://github.com/Scthe/z3-editor"
-      className="hover:text-accent-500 transition-colors relative top-[2px]"
+      href="https://github.com/Scthe/z3-online-editor"
+      className="hover:text-accent-400 transition-colors relative top-[2px]"
       title="See the repo on GitHub"
+      aria-label="See the repo on GitHub"
       target="_blank"
       rel="noopener noreferrer"
     >
-      <span className="sr-only">GitHub</span>
       <svg
         style={{ fill: 'currentcolor' }}
         width={p.size}

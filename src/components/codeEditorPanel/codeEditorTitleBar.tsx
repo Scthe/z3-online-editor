@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { OnCodeExec, RunCodeBtn } from '../runCodeBtn';
 import {
   TitleBar,
@@ -7,7 +7,8 @@ import {
   ToolbarIcons,
 } from '../titleBar';
 import { GitHubBtn } from '../githubButton';
-import { useVirtualFsFile } from '../../vfs-impl/hooks';
+import { useIsDirty, useVirtualFsFile } from '../../vfs-impl/hooks';
+import { useDiscardFileContext } from '../dialogs/discardFileDialog';
 
 interface Props {
   filename: string;
@@ -15,12 +16,11 @@ interface Props {
 }
 
 export function CodeEditorTitleBar(p: Props) {
-  const file = useVirtualFsFile(p.filename);
-  const readOnlyText = file.mode === 'readonly' ? ' (read-only)' : '';
+  const title = useTitle(p.filename);
 
   return (
     <TitleBar
-      title={`${p.filename}${readOnlyText}`}
+      title={title}
       className="h-[32px]"
       leftSection={
         <ToolbarIcons>
@@ -35,5 +35,31 @@ export function CodeEditorTitleBar(p: Props) {
         </ToolbarIcons>
       }
     />
+  );
+}
+
+function useTitle(filename: string): string | JSX.Element {
+  const file = useVirtualFsFile(filename);
+  const isDirty = useIsDirty(filename);
+  const { setDiscardedFilePath } = useDiscardFileContext();
+
+  const openDiscardDialog = useCallback(() => {
+    setDiscardedFilePath(filename);
+  }, [filename, setDiscardedFilePath]);
+
+  if (file.mode === 'readonly') {
+    return `${filename} (read-only)`;
+  }
+  if (!isDirty || file.mode === 'user') {
+    return filename;
+  }
+
+  return (
+    <div className="inline">
+      <h2 className="inline truncate">{filename}</h2>{' '}
+      <button className="hover:underline" onClick={openDiscardDialog}>
+        (changed)
+      </button>
+    </div>
   );
 }
