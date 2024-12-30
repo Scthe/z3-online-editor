@@ -1507,7 +1507,9 @@ export interface SMTArrayCreation<Name extends string> {
     consts<DomainSort extends NonEmptySortArray<Name>, RangeSort extends Sort<Name>>(names: string | string[], ...sig: [...DomainSort, RangeSort]): SMTArray<Name, DomainSort, RangeSort>[];
     K<DomainSort extends AnySort<Name>, RangeSort extends AnySort<Name>>(domain: DomainSort, value: SortToExprMap<RangeSort, Name>): SMTArray<Name, [DomainSort], RangeSort>;
 }
-export declare type NonEmptySortArray<Name extends string = 'main'> = [Sort<Name>, ...Array<Sort<Name>>];
+export declare type NonEmptySortArray<Name extends string = 'main'> = [
+  Sort<Name>, ...Array<Sort<Name>>
+];
 export declare type ArrayIndexType<Name extends string, DomainSort extends Sort<Name>[]> = [
     ...{
         [Key in keyof DomainSort]: DomainSort[Key] extends AnySort<Name> ? SortToExprMap<DomainSort[Key], Name> : DomainSort[Key];

@@ -1,6 +1,5 @@
 import React from 'react';
 
-// TODO [NOW] styling, link
 export const GitHubBtn = (p: { size: number }) => {
   return (
     <a

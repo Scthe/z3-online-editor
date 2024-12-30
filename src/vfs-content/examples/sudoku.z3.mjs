@@ -1,4 +1,6 @@
-// https://github.com/Z3Prover/z3/blob/master/src/api/js/src/high-level/high-level.test.ts#L219
+/*
+https://en.wikipedia.org/wiki/Sudoku
+*/
 
 const PUZZLE = `
 ....94.3.
@@ -24,6 +26,9 @@ for (let i = 0; i < 9; i++) {
   cells.push(row);
 }
 
+// 'ctx' is the main Z3 Context object. Use it to access all library functions.
+// You can also skip 'ctx' as all it's properties were added to the scope.
+// E.g. 'const solver = new Solver();' would also work.
 const solver = new ctx.Solver();
 
 // each cell contains a value 1<=x<=9

@@ -1,3 +1,4 @@
+import { Language } from '../constants';
 import { ensurePrefix } from '../utils';
 import { createEventEmitter } from '../utils/eventEmitter';
 
@@ -19,22 +20,21 @@ export type FileMode =
 export const ok = <T>(e: T) => ({ status: 'ok' as const, ...e });
 export const err = (error: FileError) => ({ status: 'error' as const, error });
 
-// const LANGUAGE = 'javascript';
-const LANGUAGE = 'typescript';
-
 export type FileNode = {
   mode: FileMode;
   content: string;
-  language: typeof LANGUAGE;
+  language: Language;
 };
+
+export type FileCreateOpts = Pick<FileNode, 'mode' | 'language'>;
 
 export class VirtualFs {
   private listeners = createEventEmitter<string>('immediate');
   private files: Record<string, FileNode | undefined> = {};
 
-  createFile = (path: string, content: string, mode: FileMode = 'system') => {
+  createFile = (path: string, content: string, opts: FileCreateOpts) => {
     path = VirtualFs.normalizePath(path);
-    this.files[path] = { mode, content, language: 'typescript' };
+    this.files[path] = { mode: opts.mode, content, language: opts.language };
     this.listeners.emit(path);
   };
 

@@ -1,27 +1,12 @@
-// TODO duplicate
-// TODO unused?
-// utility function to print solutions
-async function solveExample(prefix, solver) {
-  const result = await solver.check();
-  if (result !== 'sat') {
-    console.log(prefix, 'is unsatisfiable');
-    return;
-  }
+/*
+At the end of this file you will find following utils: _printModelValues().
 
-  const model = solver.model();
-  printModelValues(prefix, model);
-  return model;
-}
+When to use:
+- Solver class - when you have many complicated/dynamically added constraints. Particularly when looking for multiple solutions.
+- `solve()` function - when you have a few simple constraints. Much easier and shorter to use than `Solver`.
+- `simplify()` - this function has a different purpose. It does not search for the solutions. It takes an expression and simplifies it instead. For example, in two-valued logic, `AND(p,  FALSE)` simplifies to FALSE.
 
-function printModelValues(prefix, model) {
-  if (!model || typeof model !== 'object') {
-    console.error(`${prefix} Could not print model values. Model:`, model);
-    return;
-  }
-  for (const k of model.values()) {
-    console.log(prefix, `${k.name()}:`, model.eval(k.call()).toString());
-  }
-}
+*/
 
 // Example: basic solver usage
 // Solver.check() returns a promise that resolves
@@ -70,19 +55,8 @@ while (printedSolutions < 5) {
   printedSolutions += 1;
 }
 
-/*
-// TODO
-// Example: Not a polynomial
-// Z3 can solve nonlinear polynomial constraints,
-// but 2 ** x is not a polynomial.
-const xNap = Real.const('xNap')
-const s = Solver()
-s.add(2 ** x == 3)
-print(s.check())
-*/
-
 // Example: Eval s-expr
-// https://github.com/Z3Prover/z3/blob/master/src/api/js/src/high-level/high-level.test.ts#L120
+// https://github.com/Z3Prover/z3/blob/983763213b0207201d9b6b9ede9eb3dd7c4f05ec/src/api/js/src/high-level/high-level.test.ts#L120
 const solverSExpr = new Solver();
 solverSExpr.fromString(
   // xSExpr < 2 && xSExpr > 0
@@ -110,7 +84,7 @@ if (sExprOk) {
 // Example: using solve()
 // Sometimes there is no need to create full Solver object
 const [xSolve, ySolve] = Real.consts('xSolve ySolve');
-await printModelValues(
+await _printModelValues(
   '[solve()]',
   await solve(xSolve.pow(2).add(ySolve.pow(2)).eq(3), xSolve.pow(3).eq(2))
 );
@@ -158,3 +132,15 @@ testSubstitution(
   exprAfterSubst2,
   zSubst.mul(Int.val(1).sub(zSubst))
 );
+
+// ----- UTILS:
+/** Iterate over all model declarations and print the values */
+function _printModelValues(prefix, model) {
+  if (!model || typeof model !== 'object') {
+    console.error(`${prefix} Could not print model values. Model:`, model);
+    return;
+  }
+  for (const k of model.values()) {
+    console.log(prefix, `${k.name()}:`, model.eval(k.call()).toString());
+  }
+}

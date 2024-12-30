@@ -1,6 +1,8 @@
 /*
 Chess problem:
-Place eight chess queens on an 8x8 chessboard so that no two queens attack each other.
+
+Place eight chess queens on an 8x8 chessboard so that
+no two queens attack each other.
 */
 
 // In chess, each queen's position has row and column.

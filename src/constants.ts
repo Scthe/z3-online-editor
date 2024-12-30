@@ -14,3 +14,7 @@ export const LOCAL_STORAGE_KEYS = {
   layout: `${storagePrefix}-layout`,
   lastFile: `${storagePrefix}-lastFile`,
 };
+
+// TODO [NOW] somehow make JS mode work
+export type Language = 'typescript' | 'markdown';
+export const DEFAULT_LANGUAGE: Language = 'typescript';

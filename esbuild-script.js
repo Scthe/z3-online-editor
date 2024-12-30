@@ -4,15 +4,22 @@ const copyStaticFiles = require('esbuild-copy-static-files');
 const postCssPlugin = require('esbuild-style-plugin');
 const { readFile } = require('fs/promises');
 
+/** e.g.: `.z3.mjs`, `.z3.d.mts` */
+const Z3_FILE = /\.z3(\.d)?\.m?[tj]s$/;
+const MARKDOWN_FILE = /\.md$/;
+
+/** Load raw text file */
+const textLoader = async (args) => {
+  const contents = await readFile(args.path);
+  return { loader: 'text', contents };
+};
+
 /** Custom plugin that loads '.z3.mts' files using text loader instead of typescript loader. */
 const ImportZ3TypeScriptAsTextPlugin = {
   name: 'CSSMinifyPlugin',
   setup(build) {
-    build.onLoad({ filter: /\.z3(\.d)?\.m?[tj]s$/ }, async (args) => {
-      // console.log('.z3.ts file', args);
-      const contents = await readFile(args.path);
-      return { loader: 'text', contents };
-    });
+    build.onLoad({ filter: Z3_FILE }, textLoader);
+    build.onLoad({ filter: MARKDOWN_FILE }, textLoader);
   },
 };
 
@@ -77,4 +84,3 @@ if (isDev) {
 } else {
   buildProd();
 }
-

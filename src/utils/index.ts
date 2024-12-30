@@ -29,6 +29,11 @@ export const ensurePrefix = (str: string, prefix: string) =>
 export const removePrefix = (str: string, prefix: string) =>
   str.startsWith(prefix) ? str.slice(prefix.length) : str;
 
+const STARTS_WITH_WHITESPACE_REGEX = /^\s/;
+
+export const startsWithWhiteSpace = (s: string) =>
+  STARTS_WITH_WHITESPACE_REGEX.test(s);
+
 /** Seconds to miliseconds */
 export const s2ms = (s: number) => s * 1000;
 

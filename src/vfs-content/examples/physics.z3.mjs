@@ -1,4 +1,3 @@
-// TODO duplicate
 function printModelValues(prefix, model) {
   if (!model || typeof model !== 'object') {
     console.error(`${prefix} Could not print model values. Model:`, model);
@@ -15,7 +14,7 @@ function printModelValues(prefix, model) {
 // You are given initial speed and deceleration rate.
 // Source: https://ericpony.github.io/z3py-tutorial/guide-examples.htm
 let [d, a, t, vStart, vFinal] = Real.consts('d a t vStart vFinal');
-await printModelValues(
+printModelValues(
   '[Kinematic equations 1]',
   await solve(
     // Kinematic equations
@@ -36,7 +35,7 @@ await printModelValues(
 // You are given time and acceleration rate.
 // Source: https://ericpony.github.io/z3py-tutorial/guide-examples.htm
 [d, a, t, vStart, vFinal] = Real.consts('d a t vStart vFinal');
-await printModelValues(
+printModelValues(
   '[Kinematic equations 2]',
   await solve(
     // Kinematic equations

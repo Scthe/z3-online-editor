@@ -7,42 +7,17 @@ Z3 supports Boolean operators:
 - If (if-then-else).
 
 Bi-implications are represented using equality .eq().
-I use "^" and "v" for AND, OR operators.
+Comment notation uses "^" and "v" for AND, OR operators.
+
+At the end of this file you will find following utils: _assertEvaluatesTrue(), _printModelValues(), _evalExpr().
 */
-
-// TODO duplicate
-// utility function to assert that set of constraints evaluatest to True
-async function assertEvaluatesTrue(prefix, ...expr) {
-  const result = await solve(...expr);
-  if (result === 'unsat' || result === 'unknown') {
-    console.error(`${prefix} returned '${result}'`);
-  } else {
-    console.log(`${prefix} OK`);
-  }
-}
-
-// TODO duplicate
-function printModelValues(prefix, model) {
-  if (!model || typeof model !== 'object') {
-    console.error(`${prefix} Could not print model values. Model:`, model);
-    return;
-  }
-  for (const k of model.values()) {
-    console.log(prefix, `${k.name()}:`, model.eval(k.call()).toString());
-  }
-}
-
-async function evalExpr(expr) {
-  const result = await simplify(expr);
-  return result.toString();
-}
 
 // Example: generic 2 OP operatiors
 const testBool = async (prefix, op, opStr) => {
-  const tt = await evalExpr(op(true, true));
-  const tf = await evalExpr(op(true, false));
-  const ft = await evalExpr(op(false, true));
-  const ff = await evalExpr(op(false, false));
+  const tt = await _evalExpr(op(true, true));
+  const tf = await _evalExpr(op(true, false));
+  const ft = await _evalExpr(op(false, true));
+  const ff = await _evalExpr(op(false, false));
   console.log(
     prefix,
     `(T ${opStr} T) <=> ${tt.toUpperCase()}, `,
@@ -57,12 +32,12 @@ await testBool('[Eq]', Eq, '=');
 await testBool('[Xor]', Xor, '^');
 await testBool('[And]', And, 'AND');
 await testBool('[Or]', Or, 'OR');
-console.log('[Not(true)]', await evalExpr(Not(true)));
-console.log('[Not(false)]', await evalExpr(Not(false)));
+console.log('[Not(true)]', await _evalExpr(Not(true)));
+console.log('[Not(false)]', await _evalExpr(Not(false)));
 
 // Example: Implies
 const [a0, b0] = Bool.consts('p q r');
-await assertEvaluatesTrue(
+await _assertEvaluatesTrue(
   '[Implies]',
   Implies(a0, b0), // a0 -> b0
   // if both a0 and b0 are FALSE, the implication is satisfied
@@ -72,7 +47,7 @@ await assertEvaluatesTrue(
 
 // Example: Logic
 const [p0, q0, r0] = Bool.consts('p q r');
-await assertEvaluatesTrue(
+await _assertEvaluatesTrue(
   '[Logic]',
   Implies(p0, q0), // p0 -> q0
   r0.eq(q0), // r0 <==> q0, therefore p0 -> r0
@@ -90,7 +65,7 @@ console.log('[Simplify (p ^ FALSE)]', simplifyResult1.toString());
 // Example: Usage with numbers
 const p2 = Bool.const('p2');
 const x2 = Real.const('x2');
-await printModelValues(
+await _printModelValues(
   '[Usage with numbers]',
   await solve(
     Or(x2.lt(5), x2.gt(10)), // (x2 < 5 || x2 > 10) &&
@@ -101,7 +76,7 @@ await printModelValues(
 
 // Example: De Morgan's Law
 const [x3, y3] = Bool.consts('x3 y3');
-await assertEvaluatesTrue(
+await _assertEvaluatesTrue(
   "[De Morgan's Law]",
   Eq(
     Not(And(x3, y3)), // ~(x3 ^ y3) ==
@@ -110,12 +85,12 @@ await assertEvaluatesTrue(
 );
 
 // Example: Functions
-// https://github.com/Z3Prover/z3/blob/master/src/api/js/src/high-level/high-level.test.ts#L130
+// https://github.com/Z3Prover/z3/blob/983763213b0207201d9b6b9ede9eb3dd7c4f05ec/src/api/js/src/high-level/high-level.test.ts#L130
 const sort_Int = Int.sort();
 const [x4, y4] = Int.consts('x4 y4');
 const f4 = ctx.Function.declare('g', sort_Int, sort_Int);
 // confirms x = y implies g(x) = g(y)
-await assertEvaluatesTrue(
+await _assertEvaluatesTrue(
   '[Functions: x=y -> g(x) = g(y)]',
   Implies(
     x4.eq(y4), //
@@ -127,22 +102,35 @@ const conjecture = Implies(
   x4.eq(y4), //
   f4.call(f4.call(x4)).eq(f4.call(y4)) //
 );
-await assertEvaluatesTrue(
+await _assertEvaluatesTrue(
   '[Functions: x=y -> g(g(x)) != g(y)]',
   Not(conjecture)
 );
 
-// TODO investigate
-// Example: Pseudo-boolean constraints
-/*
-const [xPBC, yPBC] = Bool.consts('xPBC yPBC');
-await assertEvaluatesTrue("[Pseudo-boolean constraints]",
-  ctx.PbEq([xPBC, yPBC], [1, 1], 1)
-);
-const solver = new Solver();
-solver.add(PbEq([xPBC, yPBC], [1, 1], 1));
-expect(await solver.check()).toStrictEqual('sat');
+// ----- UTILS:
+/** assert that set of constraints evaluates to True */
+async function _assertEvaluatesTrue(prefix, ...expr) {
+  const result = await solve(...expr);
+  if (result === 'unsat' || result === 'unknown') {
+    console.error(`${prefix} returned '${result}'`);
+  } else {
+    console.log(`${prefix} OK`);
+  }
+}
 
-solver.add(x.eq(y));
-expect(await solver.check()).toStrictEqual('unsat');
-*/
+/** Iterate over all model declarations and print the values */
+function _printModelValues(prefix, model) {
+  if (!model || typeof model !== 'object') {
+    console.error(`${prefix} Could not print model values. Model:`, model);
+    return;
+  }
+  for (const k of model.values()) {
+    console.log(prefix, `${k.name()}:`, model.eval(k.call()).toString());
+  }
+}
+
+/** Evaluate expression using simplify() */
+async function _evalExpr(expr) {
+  const result = await simplify(expr);
+  return result.toString();
+}

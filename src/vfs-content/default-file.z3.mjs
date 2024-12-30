@@ -1,18 +1,7 @@
-// https://microsoft.github.io/z3guide/docs/logic/intro/
-// https://ericpony.github.io/z3py-tutorial/guide-examples.htm
-// https://ericpony.github.io/z3py-tutorial/advanced-examples.htm
-// https://z3prover.github.io/api/html/namespacez3py.html
+/*
+Z3 Theorem Prover is a satisfiability modulo theories (first-order formulas that also include e.g. integer or bit-vector arithmetic, arrays, etc.) solver developed by Microsoft. It is targeted at solving problems that arise in software verification and program analysis. Its main applications are extended static checking, test case generation, and predicate abstraction.
 
-const x = ctx.Int.const('x');
-const y = ctx.Real.val('my-real');
+See './readme.mjs' for a complete overview.
 
-const solver = new ctx.Solver();
-solver.add(And(x.ge(0), x.le(9)));
-const result = await solver.check();
-console.log(result);
-
-const model = solver.model();
-console.log('x', model.eval(x).toString());
-for (const k of model.values()) {
-  console.log(k.name(), model.eval(k.call()).toString());
-}
+Below you can find a simple practical example: Sudoku solver (from "examples/sudoku.mjs").
+*/

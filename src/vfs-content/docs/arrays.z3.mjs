@@ -1,9 +1,15 @@
-// https://microsoft.github.io/z3guide/docs/theories/Arrays/
+/*
+- https://microsoft.github.io/z3guide/docs/theories/Arrays/
 
-// It's rare to need z3's Array. You probably want e.g.
-//  > const [x, y] = Int.consts('x y');
-// Or a JavaScript array:
-//  > [0, 0, 0].map((_, idx) => Int.const(`x_${idx}`));
+It's rare to need z3's Array. You probably want e.g.
+ > const [x, y] = Int.consts('x y');
+Or a JavaScript array:
+ > [0, 0, 0].map((_, idx) => Int.const(`x_${idx}`));
+
+ 
+From https://ericpony.github.io/z3py-tutorial/advanced-examples.htm:
+"Arrays in Z3 are used to model unbounded or very large arrays. Arrays should not be used to model small finite collections of values. It is usually much more efficient to create different variables using list comprehensions."
+*/
 
 // "Array" is a reserved keyword in JS,
 // we have to access it through ctx.Array().
@@ -22,7 +28,8 @@ console.log(
   '[Write and read Arith]',
   (await simplify(Select(a2, 2))).toString()
 );
-// use with solver
+
+// Example: Use with solver
 const solver = new Solver();
 solver.add(x0.eq(9));
 await solver.check();

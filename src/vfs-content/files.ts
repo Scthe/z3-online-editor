@@ -6,6 +6,7 @@
 // We import all files as text, not as code!
 
 export { default as main } from './default-file.z3.mjs';
+export { default as readme } from './readme.md';
 // docs
 export { default as docs_numeric } from './docs/numeric.z3.mjs';
 export { default as docs_booleans } from './docs/booleans.z3.mjs';
