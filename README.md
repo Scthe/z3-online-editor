@@ -6,7 +6,11 @@ Speaking more formally, Z3 is a satisfiability modulo theories (first-order form
 
 In [this app](https://scthe.github.io/z3-online-editor/), I've implemented a basic online editor for the JavaScript/WASM version of Z3. It features typings and autocomplete to make it easier to learn. The main value is the live documentation showcasing all the different functions. Open each file and click `Run` to evaluate the code. Change the code and then run it again. Experimentation is one of the most effective ways to learn. I've also added a few example apps.
 
-`TODO image/video`
+
+https://github.com/user-attachments/assets/3b95220b-164c-4809-90ce-e1be3c29347c
+
+*Run sudoku solver written using Z3 in a web browser.*
+
 
 
 ## Usage
