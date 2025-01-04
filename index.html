@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Z3 Online Editor</title>
+    <meta
+      name="description"
+      content="Simple online editor for Microsoft's Z3 satisfiability modulo theories (SMT) solver."
+    />
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+
+    <!-- general styles -->
+    <style>
+      #error-wrapper {
+        color: aliceblue;
+        display: none;
+        width: 100vw;
+        height: 100vh;
+        align-items: center;
+        justify-content: center;
+      }
+      #error-msg {
+        max-width: 50%;
+        white-space: pre-line;
+        line-height: 1.7em;
+        font-size: 1.2em;
+      }
+    </style>
+
+    <link rel="stylesheet" type="text/css" href="index.css" />
+  </head>
+  <body>
+    <div id="root"><!--app-html--></div>
+    <div id="dialog-container"></div>
+
+    <div id="error-wrapper">
+      <pre id="error-msg"></pre>
+    </div>
+
+    <!-- z3 scripts -->
+    <!-- https://github.com/bakkot/z3-web-demo/blob/22714b62ddc86f255827e998149e2ae86c456def/index.html -->
+    <script src="./coi-serviceworker.js"></script>
+    <script src="./z3-built.js"></script>
+
+    <!-- app -->
+    <script src="index.js" defer></script>
+  </body>
+</html>
