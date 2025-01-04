@@ -1,9 +1,11 @@
 {
-  "name": "z3-editor",
-  "description": "Simple online editor for Microsoft's Z3 (using z3-solver).",
+  "name": "z3-online-editor",
+  "description": "Simple online editor for Microsoft's Z3 satisfiability modulo theories (SMT) solver.",
   "version": "1.0.0",
   "license": "MIT",
   "author": "Marcin Matuszczyk <marcin1113C@gmail.com>",
+  "homepage": "https://scthe.github.io/z3-online-editor/",
+  "repository": "https://github.com/Scthe/z3-online-editor",
   "main": "src/index.tsx",
   "scripts": {
     "dev": "node esbuild-script.js --dev",

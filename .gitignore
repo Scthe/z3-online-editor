@@ -8,7 +8,7 @@
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
-!.yarn/sdks
+# !.yarn/sdks
 !.yarn/versions
 yarn-debug.log*
 yarn-error.log*
@@ -17,7 +17,7 @@ node_modules
 # build
 build
 
-
 # custom
+.vscode
 *.code-workspace
 _references
